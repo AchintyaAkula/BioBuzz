@@ -4,10 +4,6 @@ plugins {
 }
 
 ftc {
-    // adds support for kotlin
     kotlin()
-
-    // adds the necessary sdk dependencies
     sdk.TeamCode()
-    implementation(dairy.Sloth)
 }
