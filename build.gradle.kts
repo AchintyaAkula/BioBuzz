@@ -7,3 +7,7 @@ ftc {
     kotlin()
     sdk.TeamCode()
 }
+
+dependencies {
+    
+}

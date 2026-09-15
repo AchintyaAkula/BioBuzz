@@ -1,0 +1,24 @@
+[versions]
+pedro3-revhub = "3.0.0"
+pedro3-tuning = "1.0.0"
+
+pedro2-ftc = "2.1.2"
+pedro2-telemetry = "1.0.0"
+
+ivy-core = "1.1.1"
+ivy-pedro = "1.1.1"
+
+[libraries]
+pedro3-revhub = { group = "com.pedropathing", name = "revhub", version.ref = "pedro3-revhub" }
+pedro3-tuning = { group = "com.pedropathing", name = "tuning", version.ref = "pedro3-tuning" }
+
+pedro2-ftc = { group = "com.pedropathing", name = "ftc", version.ref = "pedro2-ftc" }
+pedro2-telemetry= { group = "com.pedropathing", name = "telemetry", version.ref = "pedro2-telemetry" }
+
+ivy-core = { group = "com.pedropathing.ivy", name = "core", version.ref = "ivy-core" }
+ivy-pedro = { group = "com.pedropathing.ivy", name = "pedro", version.ref = "ivy-pedro" }
+
+[bundles]
+pedro3 = ["pedro3-revhub", "pedro3-tuning"]
+pedro2 = ["pedro2-ftc", "pedro2-telemetry"]
+ivy = ["ivy-core", "ivy-pedro"]
