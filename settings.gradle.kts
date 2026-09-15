@@ -11,7 +11,7 @@ pluginManagement {
 	}
 }
 
-val versionCatalogList: List<String> = listOf("pedro", "ftc", "dairy")
+val versionCatalogList: List<String> = listOf("pedro", "sdk", "dairy")
 
 dependencyResolutionManagement {
 	repositories {
