@@ -17,6 +17,7 @@ out/
 .gradle/
 build/
 .idea/
+versions/
 
 local.properties
 
