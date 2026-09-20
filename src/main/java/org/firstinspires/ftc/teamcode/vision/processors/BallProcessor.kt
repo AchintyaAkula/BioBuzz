@@ -11,6 +11,7 @@ import org.opencv.core.MatOfPoint
 import org.opencv.core.Rect
 import org.opencv.core.Scalar
 import org.opencv.core.Size
+import kotlin.properties.Delegates
 import org.opencv.imgproc.Imgproc as cv
 
 class BallProcessor(
@@ -33,11 +34,13 @@ class BallProcessor(
     var targetRect: Rect? = null
         private set
 
-    override fun init(
-        width: Int,
-        height: Int,
-        calibration: CameraCalibration?
-    ) {  }
+    var width: Int by Delegates.notNull()
+    var height: Int by Delegates.notNull()
+
+    override fun init(width: Int, height: Int, calibration: CameraCalibration?) {
+        this.width = width
+        this.height = height
+    }
 
     override fun processFrame(frame: Mat, captureTimeNanos: Long): Any? {
         cv.cvtColor(frame, imgHSV, cv.COLOR_RGB2HSV)
@@ -52,7 +55,7 @@ class BallProcessor(
         return targetRect
     }
 
-    fun updateContours() {
+    private fun updateContours() {
         contours.clear()
         largestContour = null
         targetRect = null
