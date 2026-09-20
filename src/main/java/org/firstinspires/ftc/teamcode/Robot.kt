@@ -13,6 +13,6 @@ class Robot {
         val target = vision.getTargetPose(follower.pose())
         if (target == null) return
 
-        follower.follow(line(follower.pose(), target).tangential())
+        follower.follow(line(follower.pose(), target).tangent())
     }
 }
