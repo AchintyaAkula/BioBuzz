@@ -8,7 +8,7 @@ ftc {
 }
 
 dependencies {
-    implementation("dev.frozenmilk.sinister:Sloth:0.3.2")
+    implementation("dev.frozenmilk.dairy:MercurialFTC:2.0.1-beta0")
 
     implementation("org.firstinspires.ftc:Inspection:12.0.0")
     implementation("org.firstinspires.ftc:Blocks:12.0.0")

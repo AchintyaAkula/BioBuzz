@@ -14,38 +14,38 @@ import com.qualcomm.robotcore.hardware.HardwareMap
 
 object Constants {
     val drivetrain: MecanumConfig = MecanumConfig {
-        c ->
-            // TODO change the names to match actual config names
-            c.frontLeftName.set("fl")
-            c.frontRightName.set("fr")
-            c.backLeftName.set("bl")
-            c.backRightName.set("br")
+            c ->
+        // TODO change the names to match actual config names
+        c.frontLeftName.set("fl")
+        c.frontRightName.set("fr")
+        c.backLeftName.set("bl")
+        c.backRightName.set("br")
 
-            // TODO Change the directions to match actual directions
-            c.frontLeftDirection.set(DcMotorSimple.Direction.FORWARD)
-            c.frontRightDirection.set(DcMotorSimple.Direction.FORWARD)
-            c.backLeftDirection.set(DcMotorSimple.Direction.FORWARD)
-            c.backRightDirection.set(DcMotorSimple.Direction.FORWARD)
+        // TODO Change the directions to match actual directions
+        c.frontLeftDirection.set(DcMotorSimple.Direction.FORWARD)
+        c.frontRightDirection.set(DcMotorSimple.Direction.FORWARD)
+        c.backLeftDirection.set(DcMotorSimple.Direction.FORWARD)
+        c.backRightDirection.set(DcMotorSimple.Direction.FORWARD)
     }
 
     val pinpoint: PinpointConfig = PinpointConfig {
-        c ->
-            // TODO change name
-            c.name.set("pp")
-            c.podType.set(PodType.goBILDA_4_BAR_POD)
+            c ->
+        // TODO change name
+        c.name.set("pp")
+        c.podType.set(PodType.goBILDA_4_BAR_POD)
 
-            // TODO change directions
-            c.xPodDirection.set(EncDir.FORWARD)
-            c.yPodDirection.set(EncDir.FORWARD)
+        // TODO change directions
+        c.xPodDirection.set(EncDir.FORWARD)
+        c.yPodDirection.set(EncDir.FORWARD)
 
-            // TODO add actual offsets
-            c.xPodOffset.set(0.0)
-            c.yPodOffset.set(0.0)
+        // TODO add actual offsets
+        c.xPodOffset.set(0.0)
+        c.yPodOffset.set(0.0)
     }
 
     val foresight: ForesightConfig = ForesightConfig {
-        c ->
-            // TODO copy over the generated code from AutoTune
+            c ->
+        // TODO copy over the generated code from AutoTune
     }
 
     fun create(hwMap: HardwareMap) = Follower(
