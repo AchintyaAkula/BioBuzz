@@ -45,7 +45,7 @@ object Constants {
 
     val foresight: ForesightConfig = ForesightConfig {
         c ->
-            // TODO copy over the generated code from AutoTune
+        // TODO copy over the generated code from AutoTune
     }
 
     fun create(hwMap: HardwareMap) = Follower(
@@ -53,5 +53,4 @@ object Constants {
         Mecanum(hwMap, drivetrain),
         Foresight(foresight)
     )
-
 }
