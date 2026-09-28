@@ -12,18 +12,22 @@ import org.firstinspires.ftc.teamcode.pedro.procedures.Tests
 
 object Tuning {
     @Tuner
+    @JvmStatic
     fun mecanumTuner(): Procedure = MecanumTuner()
 
     @Tuner
+    @JvmStatic
     fun pinpointTuner(): Procedure = PinpointTuner()
 
     @Tuner
+    @JvmStatic
     fun foresightTuner(): Procedure = ForesightTuner(
         { hwMap -> PinpointLocalizer(hwMap, Constants.pinpoint) },
         { hwMap -> Mecanum(hwMap, Constants.drivetrain) }
     )
 
     @Tuner
+    @JvmStatic
     fun tests(): Procedure = Tests (
         { hwMap -> Mecanum(hwMap, Constants.drivetrain) },
         { hwMap -> PinpointLocalizer(hwMap, Constants.pinpoint) },

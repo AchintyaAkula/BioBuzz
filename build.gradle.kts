@@ -19,6 +19,7 @@ dependencies {
     implementation("org.firstinspires.ftc:Hardware:12.0.0")
     implementation("org.firstinspires.ftc:FtcCommon:12.0.0")
     implementation("org.firstinspires.ftc:Vision:12.0.0")
+    implementation("com.qualcomm.ftcrobotcontroller:FtcRobotController:12.0.0")
     //noinspection GradleDependency
     implementation("androidx.appcompat:appcompat:1.2.0")
 
