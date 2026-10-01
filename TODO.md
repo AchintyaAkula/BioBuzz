@@ -1,0 +1,3 @@
+- [x] Get Pedro set up
+- [ ] Tune limelight pipeline?
+- [ ] Get limelight dynamic pathing working?
