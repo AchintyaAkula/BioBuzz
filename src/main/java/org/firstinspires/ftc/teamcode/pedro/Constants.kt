@@ -20,10 +20,10 @@ import com.qualcomm.hardware.gobilda.GoBildaPinpointDriver.GoBildaOdometryPods a
 object Constants {
     val drivetrain: MecanumConfig = MecanumConfig {
         c ->
-            c.frontLeftName.set("lf")
-            c.frontRightName.set("rf")
+            c.frontLeftName.set("rb")
+            c.frontRightName.set("lf")
             c.backLeftName.set("lb")
-            c.backRightName.set("rb")
+            c.backRightName.set("rf")
 
             c.frontLeftDirection.set(DcMotorSimple.Direction.FORWARD)
             c.frontRightDirection.set(DcMotorSimple.Direction.REVERSE)
