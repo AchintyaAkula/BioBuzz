@@ -1,3 +1,4 @@
 - [x] Get Pedro set up
-- [ ] Tune limelight pipeline?
-- [ ] Get limelight dynamic pathing working?
+- [x] Tune limelight pipeline?
+- [x] Get limelight dynamic pathing working?
+- [ ] rewire cables so lf->FL, rf->FR, lb->BL, rb->BR and revert names (i did goob changes in software bc i was too lazy, but we should actually fix this i think)
