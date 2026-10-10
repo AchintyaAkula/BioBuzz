@@ -9,6 +9,7 @@ import com.qualcomm.hardware.limelightvision.LLResult
 import com.qualcomm.hardware.limelightvision.LLResultTypes.DetectorResult
 import com.qualcomm.hardware.limelightvision.LLStatus
 import com.qualcomm.hardware.limelightvision.Limelight3A
+import com.qualcomm.robotcore.util.Range
 import org.firstinspires.ftc.teamcode.util.OpMode
 import org.firstinspires.ftc.teamcode.util.Subsystem
 import kotlin.math.cos
@@ -49,9 +50,11 @@ class Limelight : Subsystem {
 
     fun incrThreshold() {
         confThreshold += CONF_STEP
+        Range.clip(confThreshold, CONF_ABS_MIN, CONF_ABS_MAX)
     }
     fun decrThreshold() {
         confThreshold -= CONF_STEP
+        Range.clip(confThreshold, CONF_ABS_MIN, CONF_ABS_MAX)
     }
 
     override fun init() {
