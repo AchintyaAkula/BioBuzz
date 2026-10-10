@@ -23,14 +23,14 @@ object Tuning {
     @JvmStatic
     fun foresightTuner(): Procedure = ForesightTuner(
         { hwMap -> PinpointLocalizer(hwMap, Constants.pinpoint) },
-        { hwMap -> Mecanum(hwMap, Constants.drivetrain) }
+        { hwMap -> Mecanum(hwMap, Constants.drivetrain) },
     )
 
     @Tuner
     @JvmStatic
-    fun tests(): Procedure = Tests (
+    fun tests(): Procedure = Tests(
         { hwMap -> Mecanum(hwMap, Constants.drivetrain) },
         { hwMap -> PinpointLocalizer(hwMap, Constants.pinpoint) },
-        { Foresight(Constants.foresight) }
+        { Foresight(Constants.foresight) },
     )
 }

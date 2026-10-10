@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.tests;
 
 import com.pedropathing.api.Paths;
 import com.pedropathing.follower.Follower;
@@ -57,7 +57,7 @@ public class DistanceCheck extends LinearOpMode {
         while (opModeIsActive()) {
             follower.update();
 
-            // toggle pipleline from 3 to 5 (idk why but the other code mentioned 5 so i kept it)
+            // toggle pipeline from 3 to 5 (idk why but the other code mentioned 5 so i kept it)
             boolean x = gamepad1.x;
             if (x && !prevX) {
                 pipeline = (pipeline == 3) ? 5 : 3;
@@ -111,8 +111,7 @@ public class DistanceCheck extends LinearOpMode {
                         double dx = p[0] - pose.x();
                         double dy = p[1] - pose.y();
                         double heading = Math.atan2(dy, dx);
-                        double travel = Math.hypot(dx, dy)
-                                - Math.max(0.0, STOP_DIST - CAM_X_OFFSET);
+                        double travel = Math.hypot(dx, dy) - Math.max(0.0, STOP_DIST - CAM_X_OFFSET);
                         double ax, ay;
                         if (travel < 3.0) {
                             ax = pose.x();
@@ -122,8 +121,7 @@ public class DistanceCheck extends LinearOpMode {
                             ay = Range.clip(pose.y() + travel * Math.sin(heading), -144, 138);
                         }
                         double endHeading = pose.heading() + wrap(heading - pose.heading());
-                        Path path = Paths.line(pose, new Pose(ax, ay))
-                                .linear(pose.heading(), endHeading);
+                        Path path = Paths.line(pose, new Pose(ax, ay)).linear(pose.heading(), endHeading);
                         follower.follow(path);
                         targetX = ax;
                         targetY = ay;
@@ -140,11 +138,18 @@ public class DistanceCheck extends LinearOpMode {
             telemetry.addData("confidenceFilter", "min=%.2f (RB + / LB -)", minConf);
 
             if (hasTarget) {
-                telemetry.addData("best", "cls=%d conf=%.2f tx=%+.1f ty=%+.1f DIST=%.1f in",
-                        lastCls, lastConf, lastTx, lastTy, lastDist);
+                telemetry.addData(
+                        "best",
+                        "cls=%d conf=%.2f tx=%+.1f ty=%+.1f DIST=%.1f in",
+                        lastCls,
+                        lastConf,
+                        lastTx,
+                        lastTy,
+                        lastDist);
             }
 
-            telemetry.addData("pose", "x=%.1f y=%.1f heading=%.0fdeg", pose.x(), pose.y(), Math.toDegrees(pose.heading()));
+            telemetry.addData(
+                    "pose", "x=%.1f y=%.1f heading=%.0fdeg", pose.x(), pose.y(), Math.toDegrees(pose.heading()));
 
             telemetry.addData("follower", "busy=%s", follower.isBusy());
             if (follower.isBusy()) {
@@ -178,7 +183,7 @@ public class DistanceCheck extends LinearOpMode {
         double th = pose.heading();
         double fx = pose.x() + xr * Math.cos(th) - yr * Math.sin(th);
         double fy = pose.y() + xr * Math.sin(th) + yr * Math.cos(th);
-        return new double[]{fx, fy};
+        return new double[] {fx, fy};
     }
 
     private static double wrap(double a) {
