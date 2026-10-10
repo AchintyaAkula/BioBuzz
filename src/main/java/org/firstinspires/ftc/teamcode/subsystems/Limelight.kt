@@ -18,8 +18,9 @@ import kotlin.math.sin
 import kotlin.math.tan
 
 class Limelight : Subsystem {
-    private val ll: Limelight3A by lazy { OpMode().hardwareMap[LL_CF_NAME] as Limelight3A }
-
+    private val ll: Limelight3A by lazy {
+        OpMode().hardwareMap.get(Limelight3A::class.java, LL_CF_NAME)
+    }
     private lateinit var currStatus: LLStatus
     private lateinit var currResult: LLResult
     private var confThreshold = 0.44
@@ -49,12 +50,10 @@ class Limelight : Subsystem {
     }
 
     fun incrThreshold() {
-        confThreshold += CONF_STEP
-        Range.clip(confThreshold, CONF_ABS_MIN, CONF_ABS_MAX)
+        confThreshold = Range.clip(confThreshold + CONF_STEP, CONF_ABS_MIN, CONF_ABS_MAX)
     }
     fun decrThreshold() {
-        confThreshold -= CONF_STEP
-        Range.clip(confThreshold, CONF_ABS_MIN, CONF_ABS_MAX)
+        confThreshold = Range.clip(confThreshold - CONF_STEP, CONF_ABS_MIN, CONF_ABS_MAX)
     }
 
     override fun init() {
