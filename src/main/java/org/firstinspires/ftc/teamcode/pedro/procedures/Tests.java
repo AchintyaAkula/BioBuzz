@@ -1,5 +1,8 @@
 package org.firstinspires.ftc.teamcode.pedro.procedures;
 
+import static com.pedropathing.api.Paths.curve;
+import static com.pedropathing.api.Paths.line;
+
 import com.pedropathing.algorithm.Algorithm;
 import com.pedropathing.drivetrain.DrivePowers;
 import com.pedropathing.drivetrain.Drivetrain;
@@ -18,9 +21,6 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import java.util.function.Function;
 import java.util.function.Supplier;
-
-import static com.pedropathing.api.Paths.curve;
-import static com.pedropathing.api.Paths.line;
 
 public class Tests extends Procedure {
     enum Test {
@@ -41,12 +41,16 @@ public class Tests extends Procedure {
         @DisplayName("Pose Test")
         POSE
     }
+
     Function<HardwareMap, Drivetrain> drivetrainFunction;
     Function<HardwareMap, Localizer> localizerFunction;
     Supplier<Algorithm> algorithmSupplier;
     Function<HardwareMap, Follower> followerFunction;
 
-    public Tests(Function<HardwareMap, Drivetrain> drivetrainFunction, Function<HardwareMap, Localizer> localizerFunction, Supplier<Algorithm> algorithmSupplier) {
+    public Tests(
+            Function<HardwareMap, Drivetrain> drivetrainFunction,
+            Function<HardwareMap, Localizer> localizerFunction,
+            Supplier<Algorithm> algorithmSupplier) {
         super("Tests", "A procedure for testing the Follower.");
         this.drivetrainFunction = drivetrainFunction;
         this.localizerFunction = localizerFunction;
@@ -58,17 +62,17 @@ public class Tests extends Procedure {
         boolean completed = false;
         boolean algorithm = true, localizer = true, drivetrain = true;
 
-        if (algorithmSupplier == null)
-            algorithm = false;
+        if (algorithmSupplier == null) algorithm = false;
 
-        if (localizerFunction == null)
-            localizer = false;
+        if (localizerFunction == null) localizer = false;
 
-        if (drivetrainFunction == null)
-            drivetrain = false;
+        if (drivetrainFunction == null) drivetrain = false;
 
         if (algorithm && localizer && drivetrain)
-            followerFunction = (hardwareMap) -> new Follower(localizerFunction.apply(hardwareMap), drivetrainFunction.apply(hardwareMap), algorithmSupplier.get());
+            followerFunction = (hardwareMap) -> new Follower(
+                    localizerFunction.apply(hardwareMap),
+                    drivetrainFunction.apply(hardwareMap),
+                    algorithmSupplier.get());
 
         Inputs inputs = inputs("Select", "Select");
         Inputs.Field<Test> selectedTest = inputs.e("Test", Test.class).withDefault(Test.LINE);
@@ -78,49 +82,40 @@ public class Tests extends Procedure {
 
         switch (selectedTest.get()) {
             case HOLD:
-                if (!algorithm)
-                    throw new IllegalArgumentException("Algorithm is required for Hold Test.");
+                if (!algorithm) throw new IllegalArgumentException("Algorithm is required for Hold Test.");
                 completed = runOpMode(new TestsHold(followerFunction));
                 break;
             case LINE:
-                if (!algorithm)
-                    throw new IllegalArgumentException("Algorithm is required for Hold Test.");
+                if (!algorithm) throw new IllegalArgumentException("Algorithm is required for Hold Test.");
                 completed = runOpMode(new TestsLine(followerFunction, distance.get()));
                 break;
             case CURVED:
-                if (!algorithm)
-                    throw new IllegalArgumentException("Algorithm is required for Hold Test.");
+                if (!algorithm) throw new IllegalArgumentException("Algorithm is required for Hold Test.");
                 completed = runOpMode(new TestsCurve(followerFunction, distance.get()));
                 break;
             case INTERPOLATION_CURVED:
-                if (!algorithm)
-                    throw new IllegalArgumentException("Algorithm is required for Hold Test.");
+                if (!algorithm) throw new IllegalArgumentException("Algorithm is required for Hold Test.");
                 completed = runOpMode(new TestsInterpolation(followerFunction, distance.get()));
                 break;
             case LOCALIZATION:
-                if (!drivetrain)
-                    throw new IllegalArgumentException("Drivetrain is required for Localization Test.");
-                if (!localizer)
-                    throw new IllegalArgumentException("Localizer is required for Localization Test.");
+                if (!drivetrain) throw new IllegalArgumentException("Drivetrain is required for Localization Test.");
+                if (!localizer) throw new IllegalArgumentException("Localizer is required for Localization Test.");
                 completed = runOpMode(new TestsLocalization(drivetrainFunction, localizerFunction));
                 break;
             case ODOMETRY:
-                if (!drivetrain)
-                    throw new IllegalArgumentException("Drivetrain is required for Odometry Test.");
-                if (!localizer)
-                    throw new IllegalArgumentException("Localizer is required for Odometry Test.");
+                if (!drivetrain) throw new IllegalArgumentException("Drivetrain is required for Odometry Test.");
+                if (!localizer) throw new IllegalArgumentException("Localizer is required for Odometry Test.");
                 completed = runOpMode(new TestsOdometry(drivetrainFunction, localizerFunction));
                 if (!completed)
-                    abort("Failed odometry test. Please check your odometry pods and ensure they are functioning correctly.");
+                    abort(
+                            "Failed odometry test. Please check your odometry pods and ensure they are functioning correctly.");
                 break;
             case POSE:
-                if (!localizer)
-                    throw new IllegalArgumentException("Localizer is required for Pose Test.");
+                if (!localizer) throw new IllegalArgumentException("Localizer is required for Pose Test.");
                 completed = runOpMode(new TestsPose(localizerFunction));
                 break;
             case DRIVING:
-                if (!drivetrain)
-                    throw new IllegalArgumentException("Drivetrain is required for Driving Test.");
+                if (!drivetrain) throw new IllegalArgumentException("Drivetrain is required for Driving Test.");
                 completed = runOpMode(new TestsDriving(drivetrainFunction));
                 break;
         }
@@ -171,8 +166,8 @@ class TestsLine extends TuningOpMode<Boolean> {
         double distance = 48;
         boolean forward = true;
 
-        Path path1 = line(Pose.zero(), new Pose(distance,0, 0)).constant(0);
-        Path path2 = line(new Pose(distance,0, 0), Pose.zero()).constant(0);
+        Path path1 = line(Pose.zero(), new Pose(distance, 0, 0)).constant(0);
+        Path path2 = line(new Pose(distance, 0, 0), Pose.zero()).constant(0);
 
         Thread.sleep(1000);
         waitForStart();
@@ -213,8 +208,10 @@ class TestsCurve extends TuningOpMode<Boolean> {
         double distance = 48;
         boolean forward = true;
 
-        Path path1 = curve(Pose.zero(), new Pose(distance + 0,0), new Pose(distance,distance)).tangent();
-        Path path2 = curve(new Pose(distance,distance), new Pose(distance,0), Pose.zero()).tangent();
+        Path path1 = curve(Pose.zero(), new Pose(distance + 0, 0), new Pose(distance, distance))
+                .tangent();
+        Path path2 = curve(new Pose(distance, distance), new Pose(distance, 0), Pose.zero())
+                .tangent();
 
         Thread.sleep(1000);
         waitForStart();
@@ -242,7 +239,10 @@ class TestsInterpolation extends TuningOpMode<Boolean> {
     double distance;
 
     public TestsInterpolation(Function<HardwareMap, Follower> followerFunction, double distance) {
-        super("Interpolation Curve Test", "Tests the Follower's ability to follow a curve with several interpolations.", true);
+        super(
+                "Interpolation Curve Test",
+                "Tests the Follower's ability to follow a curve with several interpolations.",
+                true);
         this.followerFunction = followerFunction;
         this.distance = distance;
     }
@@ -255,8 +255,12 @@ class TestsInterpolation extends TuningOpMode<Boolean> {
         double distance = 48;
         boolean forward = true;
 
-        Path path1 = curve(Pose.zero(), new Pose(distance + 0,0), new Pose(distance,distance)).heading((curve, t) -> Math.PI);
-        Path path2 = curve(new Pose(distance,distance), new Pose(distance,0), Pose.zero()).heading(Interpolator.piecewise().until(0.5, Interpolator.tangent).until(1.0, Interpolator.constant(0)));
+        Path path1 = curve(Pose.zero(), new Pose(distance + 0, 0), new Pose(distance, distance))
+                .heading((curve, t) -> Math.PI);
+        Path path2 = curve(new Pose(distance, distance), new Pose(distance, 0), Pose.zero())
+                .heading(Interpolator.piecewise()
+                        .until(0.5, Interpolator.tangent)
+                        .until(1.0, Interpolator.constant(0)));
 
         Thread.sleep(1000);
         waitForStart();
@@ -283,7 +287,8 @@ class TestsLocalization extends TuningOpMode<Boolean> {
     Function<HardwareMap, Drivetrain> drivetrainFunction;
     Function<HardwareMap, Localizer> localizerFunction;
 
-    public TestsLocalization(Function<HardwareMap, Drivetrain> drivetrainFunction, Function<HardwareMap, Localizer> localizerFunction) {
+    public TestsLocalization(
+            Function<HardwareMap, Drivetrain> drivetrainFunction, Function<HardwareMap, Localizer> localizerFunction) {
         super("Localization Test", "Verifies localization and manual control.", true);
         this.drivetrainFunction = drivetrainFunction;
         this.localizerFunction = localizerFunction;
@@ -301,7 +306,8 @@ class TestsLocalization extends TuningOpMode<Boolean> {
         localizer.setPose(Pose.zero());
 
         while (opModeIsActive()) {
-            drivetrain.drive(new DrivePowers(-gamepad1.left_stick_y, -gamepad1.left_stick_x, -gamepad1.right_stick_x), true);
+            drivetrain.drive(
+                    new DrivePowers(-gamepad1.left_stick_y, -gamepad1.left_stick_x, -gamepad1.right_stick_x), true);
             localizer.update();
             telemetry.addData("Pose", localizer.pose());
             telemetry.update();
@@ -333,7 +339,8 @@ class TestsOdometry extends TuningOpMode<Boolean> {
     private boolean passedY = false;
     private boolean passedHeading = false;
 
-    public TestsOdometry(Function<HardwareMap, Drivetrain> drivetrainFunction, Function<HardwareMap, Localizer> localizerFunction) {
+    public TestsOdometry(
+            Function<HardwareMap, Drivetrain> drivetrainFunction, Function<HardwareMap, Localizer> localizerFunction) {
         super("Localization Test", "Verifies localization and manual control.", true);
         this.drivetrainFunction = drivetrainFunction;
         this.localizerFunction = localizerFunction;
@@ -355,7 +362,9 @@ class TestsOdometry extends TuningOpMode<Boolean> {
         while (opModeIsActive()) {
             localizer.update();
 
-            if (localizer.pose().x() != Pose.zero().x() || localizer.pose().y() != Pose.zero().y() || localizer.pose().heading() != Pose.zero().heading()) {
+            if (localizer.pose().x() != Pose.zero().x()
+                    || localizer.pose().y() != Pose.zero().y()
+                    || localizer.pose().heading() != Pose.zero().heading()) {
                 double currentHeading = localizer.pose().heading();
                 totalHeading += Angle.normalizeSigned(currentHeading - prevHeading);
                 prevHeading = currentHeading;
@@ -396,34 +405,25 @@ class TestsOdometry extends TuningOpMode<Boolean> {
 
                     Pose pose = localizer.pose();
 
-                    if (pose.x() < 0)
-                        telemetry.addData("xPod Direction", "Flipped");
-                    else if (pose.x() < 2)
-                        telemetry.addData("xPod Resolution", "Too high");
-                    else if (pose.x() > 144)
-                        telemetry.addData("xPod Resolution", "Too low");
+                    if (pose.x() < 0) telemetry.addData("xPod Direction", "Flipped");
+                    else if (pose.x() < 2) telemetry.addData("xPod Resolution", "Too high");
+                    else if (pose.x() > 144) telemetry.addData("xPod Resolution", "Too low");
                     else {
                         telemetry.addData("xPod", "Good");
                         passedX = true;
                     }
 
-                    if (pose.y() < 0)
-                        telemetry.addData("yPod Direction", "Flipped");
-                    else if (pose.y() < 2)
-                        telemetry.addData("yPod Resolution", "Too high");
-                    else if (pose.y() > 144)
-                        telemetry.addData("yPod Resolution", "Too low");
+                    if (pose.y() < 0) telemetry.addData("yPod Direction", "Flipped");
+                    else if (pose.y() < 2) telemetry.addData("yPod Resolution", "Too high");
+                    else if (pose.y() > 144) telemetry.addData("yPod Resolution", "Too low");
                     else {
                         telemetry.addData("yPod", "Good");
                         passedY = true;
                     }
 
-                    if (totalHeading < 0)
-                        telemetry.addData("Heading Direction", "Flipped");
-                    else if (totalHeading < 0.02)
-                        telemetry.addData("Heading Resolution", "Too high");
-                    else if (totalHeading > 2 * Math.PI)
-                        telemetry.addData("Heading Resolution", "Too low");
+                    if (totalHeading < 0) telemetry.addData("Heading Direction", "Flipped");
+                    else if (totalHeading < 0.02) telemetry.addData("Heading Resolution", "Too high");
+                    else if (totalHeading > 2 * Math.PI) telemetry.addData("Heading Resolution", "Too low");
                     else {
                         telemetry.addData("Heading", "Good");
                         passedHeading = true;
@@ -452,7 +452,8 @@ class TestsDriving extends TuningOpMode<Boolean> {
         Drivetrain drivetrain = drivetrainFunction.apply(hardwareMap);
         waitForStart();
         while (opModeIsActive()) {
-            drivetrain.drive(new DrivePowers(-gamepad1.left_stick_y, -gamepad1.left_stick_x, -gamepad1.right_stick_x), true);
+            drivetrain.drive(
+                    new DrivePowers(-gamepad1.left_stick_y, -gamepad1.left_stick_x, -gamepad1.right_stick_x), true);
         }
         return true;
     }
@@ -481,4 +482,3 @@ class TestsPose extends TuningOpMode<Boolean> {
         return true;
     }
 }
-
