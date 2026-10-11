@@ -21,9 +21,7 @@ import kotlin.math.min
 import kotlin.math.sin
 import kotlin.math.tan
 
-class Limelight(
-    hwMap: HardwareMap
-) : StateMachine() {
+class Limelight(hwMap: HardwareMap) : StateMachine() {
     private val ll: Limelight3A = hwMap[Limelight3A::class.java, LL_CF_NAME]
     private var confThreshold: Double = 0.44
 
@@ -35,7 +33,7 @@ class Limelight(
                 statusReceiver.send(ll.status)
                 this
             }
-        }
+        },
     ).spawnLink()
 
     private val requests: Channel<Mode> = Channel.single()
@@ -59,11 +57,19 @@ class Limelight(
 
     override fun init(): Mode = active
 
-    fun stop() { requests.send(idle) }
-    fun activate() { requests.send(active) }
+    fun stop() {
+        requests.send(idle)
+    }
+    fun activate() {
+        requests.send(active)
+    }
 
-    fun incrConf() { confThreshold = max(confThreshold + CONF_STEP, CONF_ABS_MAX) }
-    fun decrConf() { confThreshold = min(confThreshold - CONF_STEP, CONF_ABS_MIN) }
+    fun incrConf() {
+        confThreshold = max(confThreshold + CONF_STEP, CONF_ABS_MAX)
+    }
+    fun decrConf() {
+        confThreshold = min(confThreshold - CONF_STEP, CONF_ABS_MIN)
+    }
 
     fun targetPose(robotPose: Pose): Pose? {
         val res = dataReceiver.poll() ?: return null
@@ -91,8 +97,8 @@ class Limelight(
                 Vector2D.polar(
                     offset.magnitude() - max(0.0, STOP_DIST - LL_X_OFFSET),
                     offset.theta(),
-                ).apply { if (magnitude() < 3.0) return@targetPose robotPose }
-            )
+                ).apply { if (magnitude() < 3.0) return@targetPose robotPose },
+            ),
         )
     }
 
