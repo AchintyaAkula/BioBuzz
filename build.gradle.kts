@@ -13,6 +13,7 @@ dependencies {
 
     implementation("org.firstinspires.ftc:Inspection:12.0.0")
     implementation("org.firstinspires.ftc:Blocks:12.0.0")
+
     //noinspection Aligned16KB
     implementation("org.firstinspires.ftc:RobotCore:12.0.0")
     implementation("org.firstinspires.ftc:RobotServer:12.0.0")
@@ -26,6 +27,9 @@ dependencies {
 
     implementation("com.pedropathing:revhub:3.0.1")
     implementation("com.pedropathing:tuning:1.0.1")
+
+    // add solverslib
+    implementation("org.solverslib:core:0.3.5")
 }
 
 spotless {
