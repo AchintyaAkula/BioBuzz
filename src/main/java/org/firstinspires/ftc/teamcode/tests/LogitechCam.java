@@ -14,7 +14,7 @@ import org.firstinspires.ftc.vision.apriltag.AprilTagSingleDetection;
 @TeleOp(name = "AprilTagDistance", group = "Camera")
 public class LogitechCam extends OpMode {
 
-    public static final double CamTilt = 20;
+    public static final double CamTilt = 108; // in degrees
     public static final double THRESHOLD = 35;
 
     private AprilTagProcessor aprilTag;
