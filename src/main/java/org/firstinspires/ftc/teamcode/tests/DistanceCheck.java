@@ -35,7 +35,7 @@ public class DistanceCheck extends LinearOpMode {
 
     @Override
     public void runOpMode() {
-        Limelight3A limelight = hardwareMap.get(Limelight3A.class, "limelight");
+        Limelight3A limelight = hardwareMap.get(Limelight3A.class, "ll");
         Follower follower = Constants.INSTANCE.create(hardwareMap);
         follower.setPose(new Pose(0, 0, 0));
 

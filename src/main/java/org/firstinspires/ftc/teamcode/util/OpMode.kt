@@ -1,7 +1,10 @@
 package org.firstinspires.ftc.teamcode.util
 
+import android.content.Context
+import com.qualcomm.ftccommon.FtcEventLoop
 import com.qualcomm.robotcore.eventloop.opmode.OpMode
 import com.qualcomm.robotcore.eventloop.opmode.OpModeManagerNotifier.Notifications
+import org.firstinspires.ftc.ftccommon.external.OnCreateEventLoop
 
 object OpMode : Notifications {
     var instance: OpMode? = null
@@ -15,4 +18,10 @@ object OpMode : Notifications {
 
     override fun onOpModePreStart(opMode: OpMode?) {}
     override fun onOpModePostStop(opMode: OpMode?) {}
+
+    @OnCreateEventLoop
+    @JvmStatic
+    fun register(context: Context, eventLoop: FtcEventLoop) {
+        eventLoop.opModeManager.registerListener(this)
+    }
 }
