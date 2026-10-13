@@ -79,7 +79,7 @@ public class LogitechCam extends OpMode {
                 continue;
             }
             AprilTagSingleDetection d = (AprilTagSingleDetection) detection;
-            if (d.metadata != null && (d.id == 40 || d.id == 43)) {
+            if (d.metadata != null && (d.id == 30 || d.id == 34 || d.id == 38 || d.id == 42)) {
                 tags.add(d);
             }
         }
