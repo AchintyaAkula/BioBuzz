@@ -93,11 +93,9 @@ object TurtleLogger {
         }
     }
 
-    fun getLogFiles(): List<String> {
-        return logDir.listFiles { _, name -> name.endsWith(".json") }
-            ?.map { it.name }
-            ?.sortedDescending() ?: emptyList()
-    }
+    fun getLogFiles(): List<String> = logDir.listFiles { _, name -> name.endsWith(".json") }
+        ?.map { it.name }
+        ?.sortedDescending() ?: emptyList()
 
     fun getLogContent(fileName: String): String {
         val file = File(logDir, fileName)
@@ -113,45 +111,70 @@ object TurtleLogger {
     @WebHandlerRegistrar
     @JvmStatic
     fun registerWebHandlers(context: Context, manager: WebHandlerManager) {
-        manager.register("logger", WebHandler { session ->
-            val uri = session.uri ?: ""
-            val parms = session.parameters
-            when {
-                uri.contains("/api/list") -> {
-                    val files = getLogFiles()
-                    NanoHTTPD.newFixedLengthResponse(NanoHTTPD.Response.Status.OK, "application/json", gson.toJson(files))
-                }
-                uri.contains("/api/get") -> {
-                    val fileName = parms["file"]?.get(0) ?: ""
-                    val content = getLogContent(fileName)
-                    NanoHTTPD.newFixedLengthResponse(NanoHTTPD.Response.Status.OK, "application/json", content)
-                }
-                uri.contains("/api/delete") -> {
-                    val fileName = parms["file"]?.get(0) ?: ""
-                    val success = deleteLog(fileName)
-                    NanoHTTPD.newFixedLengthResponse(NanoHTTPD.Response.Status.OK, "application/json", "{\"success\":$success}")
-                }
-                else -> {
-                    try {
-                        val assetManager = context.assets
-                        val inputStream = assetManager.open("turtle_logger/index.html")
-                        val html = inputStream.bufferedReader().use { it.readText() }
-                        NanoHTTPD.newFixedLengthResponse(NanoHTTPD.Response.Status.OK, "text/html", html)
-                    } catch (e: Exception) {
-                        NanoHTTPD.newFixedLengthResponse(NanoHTTPD.Response.Status.NOT_FOUND, "text/plain", "Logger UI not found: ${e.message}")
+        manager.register(
+            "logger",
+            WebHandler { session ->
+                val uri = session.uri ?: ""
+                val parms = session.parameters
+                when {
+                    uri.contains("/api/list") -> {
+                        val files = getLogFiles()
+                        NanoHTTPD.newFixedLengthResponse(
+                            NanoHTTPD.Response.Status.OK,
+                            "application/json",
+                            gson.toJson(files),
+                        )
+                    }
+
+                    uri.contains("/api/get") -> {
+                        val fileName = parms["file"]?.get(0) ?: ""
+                        val content = getLogContent(fileName)
+                        NanoHTTPD.newFixedLengthResponse(NanoHTTPD.Response.Status.OK, "application/json", content)
+                    }
+
+                    uri.contains("/api/delete") -> {
+                        val fileName = parms["file"]?.get(0) ?: ""
+                        val success = deleteLog(fileName)
+                        NanoHTTPD.newFixedLengthResponse(
+                            NanoHTTPD.Response.Status.OK,
+                            "application/json",
+                            "{\"success\":$success}",
+                        )
+                    }
+
+                    else -> {
+                        try {
+                            val assetManager = context.assets
+                            val inputStream = assetManager.open("turtle_logger/index.html")
+                            val html = inputStream.bufferedReader().use { it.readText() }
+                            NanoHTTPD.newFixedLengthResponse(NanoHTTPD.Response.Status.OK, "text/html", html)
+                        } catch (e: Exception) {
+                            NanoHTTPD.newFixedLengthResponse(
+                                NanoHTTPD.Response.Status.NOT_FOUND,
+                                "text/plain",
+                                "Logger UI not found: ${e.message}",
+                            )
+                        }
                     }
                 }
-            }
-        })
-        manager.register("graph", WebHandler { _ ->
-            try {
-                val assetManager = context.assets
-                val inputStream = assetManager.open("turtle_logger/graph.html")
-                val html = inputStream.bufferedReader().use { it.readText() }
-                NanoHTTPD.newFixedLengthResponse(NanoHTTPD.Response.Status.OK, "text/html", html)
-            } catch (e: Exception) {
-                NanoHTTPD.newFixedLengthResponse(NanoHTTPD.Response.Status.NOT_FOUND, "text/plain", "Graph UI not found: ${e.message}")
-            }
-        })
+            },
+        )
+        manager.register(
+            "graph",
+            WebHandler { _ ->
+                try {
+                    val assetManager = context.assets
+                    val inputStream = assetManager.open("turtle_logger/graph.html")
+                    val html = inputStream.bufferedReader().use { it.readText() }
+                    NanoHTTPD.newFixedLengthResponse(NanoHTTPD.Response.Status.OK, "text/html", html)
+                } catch (e: Exception) {
+                    NanoHTTPD.newFixedLengthResponse(
+                        NanoHTTPD.Response.Status.NOT_FOUND,
+                        "text/plain",
+                        "Graph UI not found: ${e.message}",
+                    )
+                }
+            },
+        )
     }
 }
