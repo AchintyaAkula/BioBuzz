@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Turtle Logger</title>
+    <style>
+        body { font-family: sans-serif; margin: 20px; background: #f4f4f9; color: #333; }
+        h1 { color: #2c3e50; }
+        .card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        select, button, input { padding: 8px 12px; font-size: 16px; margin-right: 10px; border-radius: 4px; border: 1px solid #ccc; }
+        button { background: #3498db; color: white; border: none; cursor: pointer; }
+        button.delete { background: #e74c3c; }
+        button:hover { opacity: 0.9; }
+        input[type=range] { width: 100%; margin: 20px 0; }
+        .table-container { max-height: 450px; overflow-y: auto; border: 1px solid #ddd; border-radius: 4px; margin-top: 10px; }
+        table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+        th, td { border: 1px solid #ddd; padding: 12px; text-align: left; overflow: hidden; text-overflow: ellipsis; word-wrap: break-word; }
+        th:nth-child(1), td:nth-child(1) { width: 25%; }
+        th:nth-child(2), td:nth-child(2) { width: 75%; }
+        th { background: #2c3e50; color: white; position: sticky; top: 0; z-index: 1; }
+        tr:nth-child(even) { background: #f9f9f9; }
+        .timestamp { font-weight: bold; color: #7f8c8d; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 10px; }
+    </style>
+</head>
+<body>
+    <h1>Turtle Robot Logger</h1>
+
+    <div class="card">
+        <h3><label for="logSelect">Select Log Session</label></h3>
+        <select id="logSelect" onchange="loadLog()">
+            <option value="">-- Select a Log --</option>
+        </select>
+        <button class="delete" onclick="deleteSelectedLog()">Delete Log</button>
+        <button onclick="fetchLogList()">Refresh</button>
+        <a href="/graph" style="margin-left: 20px; text-decoration: none; color: #3498db; font-weight: bold;">Switch to Graph View &rarr;</a>
+    </div>
+
+    <div class="card" id="viewerCard" style="display:none;">
+        <h3>Playback Timeline</h3>
+        <div class="timestamp">
+            <label for="timeInput">Timestamp (ms):</label>
+            <input type="number" id="timeInput" min="0" oninput="onNumberInput()" onfocus="isInputFocused=true" onblur="isInputFocused=false" style="width: 140px;">
+        </div>
+        <input type="range" id="timeSlider" min="0" max="100" value="0" oninput="onSliderChange()">
+
+        <h3>Logged Data</h3>
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Key</th>
+                        <th>Value</th>
+                    </tr>
+                </thead>
+                <tbody id="dataTable">
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        let logData = {};
+        let timestamps = [];
+        let isInputFocused = false;
+
+        window.onload = function() {
+            fetchLogList();
+        };
+
+        function fetchLogList() {
+            fetch('/logger/api/list')
+                .then(res => res.json())
+                .then(files => {
+                    const select = document.getElementById('logSelect');
+                    select.innerHTML = '<option value="">-- Select a Log --</option>';
+                    files.forEach(file => {
+                        const opt = document.createElement('option');
+                        opt.value = file;
+                        opt.textContent = file;
+                        select.appendChild(opt);
+                    });
+                });
+        }
+
+        function loadLog() {
+            const fileName = document.getElementById('logSelect').value;
+            if (!fileName) {
+                document.getElementById('viewerCard').style.display = 'none';
+                return;
+            }
+            fetch(`/logger/api/get?file=${encodeURIComponent(fileName)}`)
+                .then(res => res.json())
+                .then(data => {
+                    logData = data;
+                    timestamps = Object.keys(data).map(Number).sort((a, b) => a - b);
+                    if (timestamps.length > 0) {
+                        const slider = document.getElementById('timeSlider');
+                        slider.min = 0;
+                        slider.max = timestamps.length - 1;
+                        slider.value = 0;
+                        document.getElementById('viewerCard').style.display = 'block';
+                        updateView(0);
+                    } else {
+                        alert('Log file is empty.');
+                    }
+                });
+        }
+
+        function onSliderChange() {
+            const index = parseInt(document.getElementById('timeSlider').value);
+            updateView(index);
+        }
+
+        function onNumberInput() {
+            const valStr = document.getElementById('timeInput').value;
+            if (valStr === '' || timestamps.length === 0) return;
+            const inputVal = parseInt(valStr);
+            if (isNaN(inputVal)) return;
+
+            let closestIdx = 0;
+            let minDiff = Math.abs(timestamps[0] - inputVal);
+            for (let i = 1; i < timestamps.length; i++) {
+                const diff = Math.abs(timestamps[i] - inputVal);
+                if (diff < minDiff) {
+                    minDiff = diff;
+                    closestIdx = i;
+                }
+            }
+            document.getElementById('timeSlider').value = closestIdx;
+            updateView(closestIdx, true);
+        }
+
+        function updateView(index, skipInputUpdate = false) {
+            if (timestamps.length === 0) return;
+            const ts = timestamps[index];
+            if (!isInputFocused && !skipInputUpdate) {
+                document.getElementById('timeInput').value = ts;
+            }
+
+            const record = logData[ts] || {};
+            const tbody = document.getElementById('dataTable');
+            tbody.innerHTML = '';
+
+            for (const [key, value] of Object.entries(record)) {
+                const tr = document.createElement('tr');
+                const tdKey = document.createElement('td');
+                const tdVal = document.createElement('td');
+                tdKey.textContent = key;
+                tdVal.textContent = JSON.stringify(value);
+                tr.appendChild(tdKey);
+                tr.appendChild(tdVal);
+                tbody.appendChild(tr);
+            }
+        }
+
+        function deleteSelectedLog() {
+            const fileName = document.getElementById('logSelect').value;
+            if (!fileName) return;
+            if (!confirm(`Are you sure you want to delete ${fileName}?`)) return;
+
+            fetch(`/logger/api/delete?file=${encodeURIComponent(fileName)}`, { method: 'POST' })
+                .then(res => res.json())
+                .then(res => {
+                    if (res.success) {
+                        alert('Log deleted successfully.');
+                        fetchLogList();
+                        document.getElementById('viewerCard').style.display = 'none';
+                    } else {
+                        alert('Failed to delete log.');
+                    }
+                });
+        }
+    </script>
+</body>
+</html>

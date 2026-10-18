@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Turtle Logger - Graph Viewer</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body { font-family: sans-serif; margin: 20px; background: #f4f4f9; color: #333; }
+        h1 { color: #2c3e50; }
+        .card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        select, button, input { padding: 8px 12px; font-size: 16px; margin-right: 10px; border-radius: 4px; border: 1px solid #ccc; }
+        button { background: #3498db; color: white; border: none; cursor: pointer; }
+        button:hover { opacity: 0.9; }
+        button.delete { background: #e74c3c; }
+        button.delete:hover { background: #c0392b; }
+        .controls { display: flex; gap: 15px; align-items: center; margin-bottom: 15px; flex-wrap: wrap; }
+        .main-workspace { display: flex; gap: 20px; align-items: flex-start; margin-bottom: 20px; }
+        .chart-area { flex: 1; min-width: 0; }
+        .sidebar-area { width: 300px; flex-shrink: 0; }
+        .checkbox-group { height: 430px; overflow-y: auto; border: 1px solid #ddd; padding: 10px; border-radius: 4px; background: #fafafa; }
+        .checkbox-item { margin-bottom: 5px; display: block; word-break: break-all; }
+        .chart-container { position: relative; height: 450px; width: 100%; }
+        input[type=range] { width: 100%; margin: 10px 0; }
+        .time-display { font-weight: bold; color: #2c3e50; margin-bottom: 10px; }
+        .timeline-area { border-top: 1px solid #eee; padding-top: 15px; }
+    </style>
+</head>
+<body>
+    <h1>Turtle Robot Graph Viewer</h1>
+
+    <div class="card">
+        <h3><label for="logSelect">Select Log Session</label></h3>
+        <select id="logSelect" onchange="loadLogForGraph()">
+            <option value="">-- Select a Log --</option>
+        </select>
+        <button class="delete" onclick="deleteSelectedLog()">Delete Log</button>
+        <button onclick="fetchLogList()">Refresh</button>
+        <a href="/logger" style="margin-left: 20px; text-decoration: none; color: #3498db; font-weight: bold;">Switch to Table View &rarr;</a>
+    </div>
+
+    <div class="card" id="graphCard" style="display:none;">
+        <h3>Telemetry Graphs</h3>
+
+        <!-- 1. Controls at the top -->
+        <div class="controls">
+            <button id="playBtn" onclick="togglePlay()">Play</button>
+            <label>View Window Size (ms): <input type="number" id="windowSizeInput" value="10000" step="1000" min="1000" style="width: 100px;" onchange="updateChart()"></label>
+            <label>Speed: <span id="speedLabel" style="font-weight: bold;">1.0x</span>
+                <input type="range" id="speedSlider" min="0" max="4" step="1" value="3" oninput="onSpeedChange()" style="width: 110px; vertical-align: middle;">
+            </label>
+        </div>
+
+        <!-- 2. Main Workspace: Graph in left center, Selector on the right -->
+        <div class="main-workspace">
+            <div class="chart-area">
+                <div class="chart-container">
+                    <canvas id="telemetryChart"></canvas>
+                </div>
+            </div>
+            <div class="sidebar-area">
+                <h4 style="margin-top: 0;">Select Metrics to Graph:</h4>
+                <div class="checkbox-group" id="metricCheckboxes">
+                    <!-- Dynamically populated -->
+                </div>
+            </div>
+        </div>
+
+        <!-- 3. Scrubber at the bottom -->
+        <div class="timeline-area">
+            <div class="time-display">Current Time: <span id="currentTimeDisplay">0</span> ms / <span id="totalTimeDisplay">0</span> ms</div>
+
+            <div style="position: relative; margin-bottom: 5px;">
+                <canvas id="rulerCanvas" height="45" style="width: 100%; cursor: pointer; background: #eaeaea; border-radius: 4px;" onclick="onRulerClick(event)"></canvas>
+            </div>
+            <input type="range" id="masterSlider" min="0" max="100" value="0" oninput="onMasterSliderInput()">
+        </div>
+    </div>
+
+    <script>
+        let logData = {};
+        let timestamps = [];
+        let availableKeys = [];
+        let chartInstance = null;
+        let isPlaying = false;
+        let playInterval = null;
+        let currentIndex = 0;
+        const speedValues = [0.25, 0.5, 0.75, 1.0, 2.0];
+
+        window.onload = function() {
+            fetchLogList();
+            window.onresize = () => drawRuler();
+        };
+
+        function fetchLogList() {
+            fetch('/logger/api/list')
+                .then(res => res.json())
+                .then(files => {
+                    const select = document.getElementById('logSelect');
+                    select.innerHTML = '<option value="">-- Select a Log --</option>';
+                    files.forEach(file => {
+                        const opt = document.createElement('option');
+                        opt.value = file;
+                        opt.textContent = file;
+                        select.appendChild(opt);
+                    });
+                });
+        }
+
+        function loadLogForGraph() {
+            const fileName = document.getElementById('logSelect').value;
+            if (!fileName) {
+                document.getElementById('graphCard').style.display = 'none';
+                stopPlay();
+                return;
+            }
+            fetch(`/logger/api/get?file=${encodeURIComponent(fileName)}`)
+                .then(res => res.json())
+                .then(data => {
+                    logData = data;
+                    timestamps = Object.keys(data).map(Number).sort((a, b) => a - b);
+                    if (timestamps.length > 0) {
+                        extractNumericKeys();
+                        document.getElementById('graphCard').style.display = 'block';
+                        currentIndex = 0;
+
+                        const slider = document.getElementById('masterSlider');
+                        slider.min = 0;
+                        slider.max = timestamps.length - 1;
+                        slider.value = 0;
+
+                        document.getElementById('totalTimeDisplay').textContent = timestamps[timestamps.length - 1];
+
+                        initChart();
+                        updateChart();
+                        drawRuler();
+                    } else {
+                        alert('Log file is empty.');
+                    }
+                });
+        }
+
+        function extractNumericKeys() {
+            const keysSet = new Set();
+            for (const ts of timestamps) {
+                const record = logData[ts] || {};
+                for (const [k, v] of Object.entries(record)) {
+                    if (typeof v === 'number') {
+                        keysSet.add(k);
+                    }
+                }
+            }
+            availableKeys = Array.from(keysSet);
+            const container = document.getElementById('metricCheckboxes');
+            container.innerHTML = '';
+            availableKeys.forEach((key, idx) => {
+                const label = document.createElement('label');
+                label.className = 'checkbox-item';
+                const checkbox = document.createElement('input');
+                checkbox.type = 'checkbox';
+                checkbox.value = key;
+                checkbox.checked = idx < 3; // check first 3 by default
+                checkbox.onchange = updateChart;
+                checkbox.style.marginRight = '6px';
+                label.appendChild(checkbox);
+                label.appendChild(document.createTextNode(key));
+                container.appendChild(label);
+            });
+        }
+
+        function initChart() {
+            const ctx = document.getElementById('telemetryChart').getContext('2d');
+            if (chartInstance) {
+                chartInstance.destroy();
+            }
+            chartInstance = new Chart(ctx, {
+                type: 'line',
+                data: { labels: [], datasets: [] },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    animation: false,
+                    scales: {
+                        x: { title: { display: true, text: 'Time (ms)' } },
+                        y: { title: { display: true, text: 'Value' } }
+                    }
+                }
+            });
+        }
+
+        function onMasterSliderInput() {
+            currentIndex = parseInt(document.getElementById('masterSlider').value);
+            updateChart();
+            drawRuler();
+        }
+
+        function onSpeedChange() {
+            const idx = parseInt(document.getElementById('speedSlider').value);
+            const speed = speedValues[idx];
+            document.getElementById('speedLabel').textContent = speed + 'x';
+            if (isPlaying) {
+                stopPlay();
+                startPlay();
+            }
+        }
+
+        function onRulerClick(event) {
+            const canvas = document.getElementById('rulerCanvas');
+            const rect = canvas.getBoundingClientRect();
+            const clickX = event.clientX - rect.left;
+            const ratio = Math.max(0, Math.min(1, clickX / canvas.clientWidth));
+
+            const startTime = timestamps[0];
+            const endTime = timestamps[timestamps.length - 1];
+            const targetTime = startTime + ratio * (endTime - startTime);
+
+            let closestIdx = 0;
+            let minDiff = Math.abs(timestamps[0] - targetTime);
+            for (let i = 1; i < timestamps.length; i++) {
+                const diff = Math.abs(timestamps[i] - targetTime);
+                if (diff < minDiff) {
+                    minDiff = diff;
+                    closestIdx = i;
+                }
+            }
+            currentIndex = closestIdx;
+            document.getElementById('masterSlider').value = currentIndex;
+            updateChart();
+            drawRuler();
+        }
+
+        function drawRuler() {
+            const canvas = document.getElementById('rulerCanvas');
+            if (!canvas || timestamps.length === 0) return;
+            canvas.width = canvas.parentElement.clientWidth;
+            const ctx = canvas.getContext('2d');
+            const w = canvas.width;
+            const h = canvas.height;
+
+            ctx.clearRect(0, 0, w, h);
+            ctx.fillStyle = '#f0f0f5';
+            ctx.fillRect(0, 0, w, h);
+
+            const startTime = timestamps[0];
+            const endTime = timestamps[timestamps.length - 1];
+            const duration = endTime - startTime || 1;
+
+            const stepMs = duration > 30000 ? 10000 : (duration > 10000 ? 5000 : 1000);
+
+            ctx.fillStyle = '#555';
+            ctx.font = '11px sans-serif';
+            ctx.textAlign = 'center';
+
+            for (let t = Math.floor(startTime / stepMs) * stepMs; t <= endTime; t += stepMs) {
+                const ratio = (t - startTime) / duration;
+                const x = ratio * w;
+
+                ctx.strokeStyle = '#ccc';
+                ctx.lineWidth = 1;
+                ctx.beginPath();
+                ctx.moveTo(x, 0);
+                ctx.lineTo(x, 15);
+                ctx.stroke();
+
+                const seconds = ((t - startTime) / 1000).toFixed(1) + 's';
+                ctx.fillText(seconds, x, 28);
+            }
+
+            const currentTs = timestamps[currentIndex];
+            const curRatio = (currentTs - startTime) / duration;
+            const curX = curRatio * w;
+
+            ctx.fillStyle = '#3498db';
+            ctx.fillRect(curX - 2, 0, 4, h);
+        }
+
+        function updateChart() {
+            if (timestamps.length === 0 || !chartInstance) return;
+
+            const currentTs = timestamps[currentIndex];
+            document.getElementById('currentTimeDisplay').textContent = currentTs;
+            document.getElementById('masterSlider').value = currentIndex;
+            drawRuler();
+
+            const checkedBoxes = document.querySelectorAll('#metricCheckboxes input[type="checkbox"]:checked');
+            const selectedKeys = Array.from(checkedBoxes).map(cb => cb.value);
+            const windowSize = parseInt(document.getElementById('windowSizeInput').value) || 10000;
+
+            const startTime = Math.max(timestamps[0], currentTs - windowSize);
+            const endTime = currentTs;
+
+            const filteredTs = timestamps.filter(ts => ts >= startTime && ts <= endTime);
+
+            chartInstance.data.labels = filteredTs;
+            chartInstance.data.datasets = selectedKeys.map((key, index) => {
+                const dataPoints = filteredTs.map(ts => {
+                    const record = logData[ts] || {};
+                    return record[key] !== undefined ? record[key] : null;
+                });
+
+                const colors = ['#3498db', '#e74c3c', '#2ecc71', '#9b59b6', '#f1c40f', '#1abc9c', '#e67e22'];
+                const color = colors[index % colors.length];
+
+                return {
+                    label: key,
+                    data: dataPoints,
+                    borderColor: color,
+                    backgroundColor: color,
+                    borderWidth: 2,
+                    pointRadius: 0,
+                    tension: 0.1
+                };
+            });
+
+            chartInstance.update();
+        }
+
+        function togglePlay() {
+            if (isPlaying) {
+                stopPlay();
+            } else {
+                startPlay();
+            }
+        }
+
+        function startPlay() {
+            if (timestamps.length === 0) return;
+            isPlaying = true;
+            document.getElementById('playBtn').textContent = 'Pause';
+
+            const speedIdx = parseInt(document.getElementById('speedSlider').value) || 3;
+            const speed = speedValues[speedIdx];
+
+            let intervalTime = 50;
+            let step = 1;
+            if (speed < 1) {
+                intervalTime = Math.round(50 / speed);
+                step = 1;
+            } else {
+                intervalTime = 50;
+                step = Math.round(speed);
+            }
+
+            playInterval = setInterval(() => {
+                currentIndex += step;
+                if (currentIndex >= timestamps.length) {
+                    currentIndex = 0;
+                }
+                updateChart();
+            }, intervalTime);
+        }
+
+        function stopPlay() {
+            isPlaying = false;
+            document.getElementById('playBtn').textContent = 'Play';
+            if (playInterval) {
+                clearInterval(playInterval);
+                playInterval = null;
+            }
+        }
+
+        function deleteSelectedLog() {
+            const fileName = document.getElementById('logSelect').value;
+            if (!fileName) return;
+            if (!confirm(`Are you sure you want to delete ${fileName}?`)) return;
+
+            fetch(`/logger/api/delete?file=${encodeURIComponent(fileName)}`, { method: 'POST' })
+                .then(res => res.json())
+                .then(res => {
+                    if (res.success) {
+                        alert('Log deleted successfully.');
+                        fetchLogList();
+                        document.getElementById('graphCard').style.display = 'none';
+                        stopPlay();
+                    } else {
+                        alert('Failed to delete log.');
+                    }
+                });
+        }
+    </script>
+</body>
+</html>
