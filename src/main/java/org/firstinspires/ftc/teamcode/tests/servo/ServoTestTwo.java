@@ -20,7 +20,7 @@ public class ServoTestTwo extends OpMode {
 
     public void init() {
         servo = hardwareMap.get(Servo.class, SERVO_NAME_ONE);
-        servo = hardwareMap.get(Servo.class, SERVO_NAME_TWO);
+        servo2 = hardwareMap.get(Servo.class, SERVO_NAME_TWO);
     }
 
     public void loop() {
