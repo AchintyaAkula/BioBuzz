@@ -28,6 +28,8 @@ dependencies {
     implementation("com.pedropathing:revhub:3.0.1")
     implementation("com.pedropathing:tuning:1.0.1")
 
+    implementation("com.acmerobotics.slothboard:dashboard:0.3.2+0.6.0")
+
     // add solverslib
     implementation("org.solverslib:core:0.3.5")
 }
