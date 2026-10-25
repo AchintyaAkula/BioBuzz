@@ -6,7 +6,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
 @Config
-@TeleOp(name = "MotorTest", group = "tests")
+@TeleOp(name = "MotorTest2", group = "tests")
 public class MotorTestTwo extends OpMode {
 
     public static String MOTOR_NAME_ONE = "motor"; // placeholder change in ftcdash or slothdash or wtv it is

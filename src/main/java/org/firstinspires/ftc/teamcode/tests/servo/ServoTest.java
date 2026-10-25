@@ -9,7 +9,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 @TeleOp(name = "ServoTest", group = "tests")
 public class ServoTest extends OpMode {
 
-    public static String SERVO_NAME = "servo";
+    public static String SERVO_NAME = "test";
     public static double POSITION = 0.5;
 
     public Servo servo;

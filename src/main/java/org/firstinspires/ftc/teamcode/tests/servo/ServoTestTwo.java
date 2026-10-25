@@ -6,7 +6,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.Servo;
 
 @Config
-@TeleOp(name = "ServoTest", group = "tests")
+@TeleOp(name = "ServoTest2", group = "tests")
 public class ServoTestTwo extends OpMode {
 
     public static String SERVO_NAME_ONE = "servo";
