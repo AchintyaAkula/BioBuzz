@@ -1,6 +1,6 @@
 @file:Suppress("unused")
 
-package org.firstinspires.ftc.teamcode.subsystems
+package org.firstinspires.ftc.teamcode.subsystems.camera
 
 import com.pedropathing.math.Pose
 import com.pedropathing.math.Vector2D

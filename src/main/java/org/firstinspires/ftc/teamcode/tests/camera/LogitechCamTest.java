@@ -1,11 +1,11 @@
-package org.firstinspires.ftc.teamcode.tests;
+package org.firstinspires.ftc.teamcode.tests.camera;
 
 import com.acmerobotics.dashboard.config.Config;
 import com.pedropathing.follower.Follower;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import org.firstinspires.ftc.teamcode.pedro.Constants;
-import org.firstinspires.ftc.teamcode.subsystems.LogitechCam;
+import org.firstinspires.ftc.teamcode.subsystems.camera.LogitechCam;
 
 @Config
 @TeleOp(name = "AprilTagDistance", group = "Camera")
