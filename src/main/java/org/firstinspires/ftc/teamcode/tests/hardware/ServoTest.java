@@ -1,14 +1,13 @@
-package org.firstinspires.ftc.teamcode.tests.servo;
+package org.firstinspires.ftc.teamcode.tests.hardware;
 
 import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.eventloop.opmode.Utility;
 import com.qualcomm.robotcore.hardware.Servo;
 
 @Config
-@TeleOp(name = "ServoTest", group = "tests")
+@Utility(name = "Servo Test", description = "Tests one servo")
 public class ServoTest extends OpMode {
-
     public static String SERVO_NAME = "test";
     public static double POSITION = 0.5;
 
