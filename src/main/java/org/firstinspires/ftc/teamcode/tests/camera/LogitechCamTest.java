@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.tests;
+package org.firstinspires.ftc.teamcode.tests.camera;
 
 import com.acmerobotics.dashboard.config.Config;
 import com.pedropathing.follower.Follower;
