@@ -13,6 +13,7 @@ dependencies {
 
     implementation("org.firstinspires.ftc:Inspection:12.0.0")
     implementation("org.firstinspires.ftc:Blocks:12.0.0")
+
     //noinspection Aligned16KB
     implementation("org.firstinspires.ftc:RobotCore:12.0.0")
     implementation("org.firstinspires.ftc:RobotServer:12.0.0")
@@ -29,6 +30,8 @@ dependencies {
 
     implementation("com.acmerobotics.slothboard:dashboard:0.3.2+0.6.0")
 
+    // add solverslib
+    implementation("org.solverslib:core:0.3.5")
 }
 
 spotless {
