@@ -26,16 +26,11 @@ public class ShooterSubsystem {
 
     public void initShooter(boolean isRedAlliance, Follower follower) {
         this.isRedAlliance = isRedAlliance;
+        this.follower = follower;
         shooter1 = hardwareMap.get(DcMotorEx.class, ShooterConstants.MOTOR_NAME_ONE);
         shooter2 = hardwareMap.get(DcMotorEx.class, ShooterConstants.MOTOR_NAME_TWO);
-        if (isRedAlliance) {
-            follower.setPose(new Pose(ShooterConstants.RED_X, ShooterConstants.RED_Y, Math.toRadians(90)));
-        } else {
-            follower.setPose(new Pose(ShooterConstants.BLUE_X, ShooterConstants.BLUE_Y, Math.toRadians(90)));
-        }
     }
     public void runShooter() {
-        follower.update();
         double rpm = ShooterInterpolation.returnRPM(calcDistance(follower, isRedAlliance));
         shooter1.setVelocity(rpm * ShooterConstants.TICKS_PER_REV / 60.0);
         shooter2.setVelocity(rpm * ShooterConstants.TICKS_PER_REV / 60.0);
