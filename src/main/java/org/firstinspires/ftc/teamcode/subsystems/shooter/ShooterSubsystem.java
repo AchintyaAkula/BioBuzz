@@ -4,6 +4,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import org.firstinspires.ftc.teamcode.constants.ShooterConstants;
 public class ShooterSubsystem {
     private final Telemetry telemetry;
     private final HardwareMap hardwareMap;
@@ -16,7 +17,12 @@ public class ShooterSubsystem {
     }
 
     public void init() {
-        shooter1 = hardwareMap.get(DcMotorEx.class, "shooter1");
+        shooter1 = hardwareMap.get(DcMotorEx.class, ShooterConstants.motorNameOne);
+        shooter2 = hardwareMap.get(DcMotorEx.class, ShooterConstants.motorNameTwo);
+    }
+
+    public void loop() {
+
     }
 
 }
