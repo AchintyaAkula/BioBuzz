@@ -27,6 +27,13 @@ public class ShooterSubsystem {
     public void initShooter(boolean isRedAlliance, Follower follower) {
         this.isRedAlliance = isRedAlliance;
         this.follower = follower;
+
+        if (isRedAlliance) {
+            follower.setPose(new Pose(ShooterConstants.RED_X, ShooterConstants.RED_Y, Math.toRadians(90)));
+        } else {
+            follower.setPose(new Pose(ShooterConstants.BLUE_X, ShooterConstants.BLUE_Y, Math.toRadians(90)));
+        }
+        
         shooter1 = hardwareMap.get(DcMotorEx.class, ShooterConstants.MOTOR_NAME_ONE);
         shooter2 = hardwareMap.get(DcMotorEx.class, ShooterConstants.MOTOR_NAME_TWO);
     }
