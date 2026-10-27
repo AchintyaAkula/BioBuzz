@@ -36,11 +36,11 @@ object Constants {
         c.xPodDirection.set(EncDir.REVERSED)
         c.yPodDirection.set(EncDir.FORWARD)
 
-        c.xPodOffset.set(6.18433374119556)
-        c.yPodOffset.set(-1.3435446371243693)
+        c.xPodOffset.set(-109.036)
+        c.yPodOffset.set(98.143)
 
         c.globalDistanceUnit.set(DistanceUnit.INCH)
-        c.offsetUnits.set(DistanceUnit.INCH)
+        c.offsetUnits.set(DistanceUnit.MM)
     }
 
     val foresight: ForesightConfig = ForesightConfig { c ->
