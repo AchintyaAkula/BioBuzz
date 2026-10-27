@@ -1,6 +1,6 @@
 @file:Suppress("unused")
 
-package org.firstinspires.ftc.teamcode.subsystems
+package org.firstinspires.ftc.teamcode.subsystems.camera
 
 import com.pedropathing.math.Pose
 import com.pedropathing.math.Vector2D
@@ -11,13 +11,13 @@ import com.qualcomm.hardware.limelightvision.LLStatus
 import com.qualcomm.hardware.limelightvision.Limelight3A
 import com.qualcomm.robotcore.util.Range
 import org.firstinspires.ftc.teamcode.util.OpMode
-import org.firstinspires.ftc.teamcode.util.Subsystem
 import kotlin.math.cos
 import kotlin.math.max
 import kotlin.math.sin
 import kotlin.math.tan
 
-class Limelight : Subsystem {
+//TODO we need to look at this and make sure its all fine, bcos it looks very cursed right now
+class Limelight {
     private val ll: Limelight3A by lazy {
         OpMode().hardwareMap.get(Limelight3A::class.java, LL_CF_NAME)
     }
@@ -56,12 +56,12 @@ class Limelight : Subsystem {
         confThreshold = Range.clip(confThreshold - CONF_STEP, CONF_ABS_MIN, CONF_ABS_MAX)
     }
 
-    override fun init() {
+    fun init() {
         ll.setPollRateHz(LL_POLL_RATE_HZ)
         ll.pipelineSwitch(LL_PIPELINE_NUM)
         ll.start()
     }
-    override fun update() {
+    fun update() {
         currResult = ll.latestResult
         currStatus = ll.status
     }
