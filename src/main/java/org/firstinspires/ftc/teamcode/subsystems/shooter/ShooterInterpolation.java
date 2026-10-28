@@ -1,18 +1,26 @@
 package org.firstinspires.ftc.teamcode.subsystems.shooter;
 
-import org.apache.commons.math3.analysis.interpolation.SplineInterpolator;
-import org.apache.commons.math3.analysis.polynomials.PolynomialSplineFunction;
+import com.seattlesolvers.solverslib.util.InterpLUT;
 
 public class ShooterInterpolation {
-    public static double returnRPM(double distance) {
-        distance = Math.max(0, Math.min(68, distance));
-        double[] x = {0.0, 15, 25, 45, 53, 58, 63, 68}; // distance in inches
-        double[] y = {0, 1200, 2000, 2600, 2900, 3100, 3400, 3700}; // rpm
 
-        SplineInterpolator interpolator = new SplineInterpolator();
-        PolynomialSplineFunction function = interpolator.interpolate(x, y);
+    private static final InterpLUT shooterSpeed = new InterpLUT();
 
-        return function.value(distance);
+    static {
+        // distance in inches -> rpm
+        shooterSpeed.add(0.0, 0.0);
+        shooterSpeed.add(15, 0.25);
+        shooterSpeed.add(25, 0.4);
+        shooterSpeed.add(45, 0.6);
+        shooterSpeed.add(53, 0.78);
+        shooterSpeed.add(58, 0.83);
+        shooterSpeed.add(63, 0.88);
+        shooterSpeed.add(68, 0.92);
+        shooterSpeed.add(19745, 0.92); // js so we dont error out if we r too far away
+        shooterSpeed.createLUT();
     }
 
+    public static double returnRPM(double distance) {
+        return shooterSpeed.get(distance);
+    }
 }

@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.tests.camera;
+package org.firstinspires.ftc.teamcode.subsystems.camera;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.math.Pose;
 import com.qualcomm.hardware.limelightvision.LLResult;
