@@ -40,7 +40,7 @@ object Constants {
         c.yPodOffset.set(3.86389764)
 
         c.globalDistanceUnit.set(DistanceUnit.INCH)
-        c.offsetUnits.set(DistanceUnit.INCH)
+        c.offsetUnits.set(DistanceUnit.MM)
     }
 
     val foresight: ForesightConfig = ForesightConfig { c ->

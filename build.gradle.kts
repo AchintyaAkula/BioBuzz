@@ -31,6 +31,9 @@ dependencies {
     implementation("com.acmerobotics.slothboard:dashboard:0.3.2+0.6.0")
 
     implementation("org.solverslib:core:0.3.5")
+
+    // for interpolation
+    implementation("org.apache.commons:commons-math3:3.6.1")
 }
 
 spotless {
