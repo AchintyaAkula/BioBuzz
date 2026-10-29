@@ -24,6 +24,6 @@ public class MotorTestTwo extends OpMode {
 
     public void loop() {
         dcmotor.setPower(SPEED_ONE);
-        dcmotor.setPower(SPEED_TWO);
+        dcmotor2.setPower(SPEED_TWO);
     }
 }
