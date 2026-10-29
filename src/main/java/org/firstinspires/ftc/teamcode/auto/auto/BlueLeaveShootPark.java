@@ -55,8 +55,8 @@ public class BlueLeaveShootPark extends OpMode {
         follower = Constants.INSTANCE.create(hardwareMap);
         follower.setPose(start);
         turret.initTurret();
-        shooter.initShooter(true, follower);
-        hood.initHood(hoodServo, true, follower);
+        shooter.initShooter(false, follower);
+        hood.initHood(hoodServo, false, follower);
 
 
     }
