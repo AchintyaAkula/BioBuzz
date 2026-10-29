@@ -22,8 +22,7 @@ public class Configuration {
             EncoderDirection.REVERSED,
             EncoderDirection.FORWARD,
             -4.292755906,
-            3.86389764
-    );
+            3.86389764);
 
     // Expansion Hub
     public static final MotorConfig FRONT_RIGHT_MOTOR = new MotorConfig("fr", Direction.REVERSE);
@@ -43,8 +42,8 @@ public class Configuration {
         public final Direction direction;
 
         public MotorConfig(String name, Direction dir) {
-                this.name = name;
-                this.direction = dir;
+            this.name = name;
+            this.direction = dir;
         }
 
         public DcMotorEx createMotor(HardwareMap hwMap) {
@@ -81,8 +80,7 @@ public class Configuration {
                 EncoderDirection xDir,
                 EncoderDirection yDir,
                 double xOffset,
-                double yOffset
-        ) {
+                double yOffset) {
             this.name = name;
             this.podType = podType;
             this.xPodDirection = xDir;
