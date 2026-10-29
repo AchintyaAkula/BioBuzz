@@ -13,6 +13,7 @@ public class IntakeTest extends OpMode {
 
     public static double fast = 1; // fyi when testing lower these to 0.7, and 0.5 otherwise you will loose hearing
     public static double slow = 0.8;
+    public static double swapPeriod = 0.2; // seconds
 
     public static String TRANSFER_NAME = "idk";
     public static double open = 0.4;
@@ -51,8 +52,11 @@ public class IntakeTest extends OpMode {
         double back = 0.0;
 
         if (gamepad1.right_trigger > 0.0) {
-            front = fast;
-            back = slow;
+            // switch every 'swapPeriod' seconds
+            boolean swapped = ((long) (getRuntime() / swapPeriod)) % 2 == 1;
+            front = swapped ? slow : fast;
+            back = swapped ? fast : slow;
+
         } else if (gamepad1.left_trigger > 0.0) {
             front = slow;
             back = fast;
