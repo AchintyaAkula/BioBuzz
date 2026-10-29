@@ -30,7 +30,6 @@ dependencies {
 
     implementation("com.acmerobotics.slothboard:dashboard:0.3.2+0.6.0")
 
-    // add solverslib
     implementation("org.solverslib:core:0.3.5")
 }
 
