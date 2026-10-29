@@ -4,10 +4,6 @@ plugins {
     id("com.diffplug.spotless") version "8.10.4"
 }
 
-ftc {
-    kotlin()
-}
-
 dependencies {
     implementation("dev.frozenmilk.sinister:Sloth:0.3.2")
 
@@ -25,7 +21,7 @@ dependencies {
     //noinspection GradleDependency
     implementation("androidx.appcompat:appcompat:1.2.0")
 
-    implementation("com.pedropathing:revhub:3.0.1")
+    implementation("com.pedropathing:revhub:3.0.2")
     implementation("com.pedropathing:tuning:1.0.1")
 
     implementation("com.acmerobotics.slothboard:dashboard:0.3.2+0.6.0")
@@ -35,13 +31,6 @@ dependencies {
 }
 
 spotless {
-    kotlin {
-        target("src/main/**/*.kt")
-        targetExclude("**/build/**/*.kt", "**/.gradle/**/*.kt")
-
-        ktlint()
-            .editorConfigOverride(kotlinFormattingConfiguration)
-    }
     kotlinGradle {
         target("**/*.gradle.kts")
 
@@ -53,7 +42,7 @@ spotless {
 
         palantirJavaFormat()
         removeUnusedImports()
-        importOrder("com", "org", "java", "javax")
+        importOrder("java", "javax", "jakarta")
         trimTrailingWhitespace()
         endWithNewline()
         formatAnnotations()

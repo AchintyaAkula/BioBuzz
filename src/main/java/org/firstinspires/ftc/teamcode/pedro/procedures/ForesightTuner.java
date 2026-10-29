@@ -1,8 +1,5 @@
 package org.firstinspires.ftc.teamcode.pedro.procedures;
 
-import static com.pedropathing.utils.Utils.linearFit;
-import static com.pedropathing.utils.Utils.quadraticFit;
-
 import com.pedropathing.drivetrain.DrivePowers;
 import com.pedropathing.drivetrain.Drivetrain;
 import com.pedropathing.localization.Localizer;
@@ -19,12 +16,14 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import java.util.*;
 import java.util.function.Function;
 
+import static com.pedropathing.utils.Utils.linearFit;
+import static com.pedropathing.utils.Utils.quadraticFit;
+
 public class ForesightTuner extends Procedure {
     Function<HardwareMap, Localizer> localizerFunction;
     Function<HardwareMap, Drivetrain> drivetrainFunction;
 
-    public ForesightTuner(
-            Function<HardwareMap, Localizer> localizerFunction, Function<HardwareMap, Drivetrain> drivetrainFunction) {
+    public ForesightTuner(Function<HardwareMap, Localizer> localizerFunction, Function<HardwareMap, Drivetrain> drivetrainFunction) {
         super("Foresight Tuner", "A procedure for tuning the Foresight Algorithm.");
         this.localizerFunction = localizerFunction;
         this.drivetrainFunction = drivetrainFunction;
@@ -32,51 +31,42 @@ public class ForesightTuner extends Procedure {
 
     @Override
     public void run() throws InterruptedException {
-        Inputs distanceInput = inputs(
-                "Distance", "The distance to drive in inches for the Max Achievable Forward and Strafe Identifiers");
+        Inputs distanceInput = inputs("Distance", "The distance to drive in inches for the Max Achievable Forward and Strafe Identifiers");
         Inputs.Field<Double> distance = distanceInput.d("Distance").withDefault(48.0);
         awaitInputs(distanceInput);
 
-        double forwardVelocity = runOpMode(new ForwardVelocity(localizerFunction, drivetrainFunction, distance.get()));
-        double strafeVelocity = runOpMode(new StrafeVelocity(localizerFunction, drivetrainFunction, distance.get()));
+        double forwardVelocity = step(new ForwardVelocity(localizerFunction, drivetrainFunction, distance.get()));
+        double strafeVelocity = step(new StrafeVelocity(localizerFunction, drivetrainFunction, distance.get()));
 
-        Inputs velocityInput = inputs(
-                "Velocity",
-                "The velocity to drive to in inches for the Max Achievable Forward and Strafe Deceleration Identifiers");
+        Inputs velocityInput = inputs("Velocity", "The velocity to drive to in inches for the Max Achievable Forward and Strafe Deceleration Identifiers");
         Inputs.Field<Double> velocity = velocityInput.d("Velocity").withDefault(30.0);
         awaitInputs(velocityInput);
 
-        double forwardDeceleration =
-                runOpMode(new ForwardDeceleration(localizerFunction, drivetrainFunction, velocity.get()));
-        double strafeDeceleration =
-                runOpMode(new StrafeDeceleration(localizerFunction, drivetrainFunction, velocity.get()));
+        double forwardDeceleration = step(new ForwardDeceleration(localizerFunction, drivetrainFunction, velocity.get()));
+        double strafeDeceleration = step(new StrafeDeceleration(localizerFunction, drivetrainFunction, velocity.get()));
 
-        List<Double> headingBraking = runOpMode(new HeadingBraking(localizerFunction, drivetrainFunction));
-        double heading = runOpMode(new HeadingTuner(localizerFunction, drivetrainFunction));
+        List<Double> headingBraking = step(new HeadingBraking(localizerFunction, drivetrainFunction));
+        double heading = step(new HeadingTuner(localizerFunction, drivetrainFunction));
 
-        double headingLinear = headingBraking.get(0);
-        double headingQuadratic = headingBraking.get(1);
+        heading = measured("Heading Tuner", "heading kP", heading, true);
+        double headingLinear = measured("Heading Braking", "the linear coefficient", headingBraking.get(0), false);
+        double headingQuadratic = measured("Heading Braking", "the quadratic coefficient", headingBraking.get(1), false);
 
-        Inputs distanceBrakingInput = inputs(
-                "Distance",
-                "The distance to drive in inches for the Forward and Strafe Braking Identifiers. Distance must be at least 15 inches for accurate results.");
-        Inputs.Field<Double> distanceBraking =
-                distanceBrakingInput.d("Distance").withDefault(36.0);
+        Inputs distanceBrakingInput = inputs("Distance", "The distance to drive in inches for the Forward and Strafe Braking Identifiers. Distance must be at least 15 inches for accurate results.");
+        Inputs.Field<Double> distanceBraking = distanceBrakingInput.d("Distance").withDefault(36.0);
         awaitInputs(distanceBrakingInput);
         double safeDistanceBraking = Math.max(distanceBraking.get(), 15.0);
 
-        List<Double> forwardBraking = runOpMode(new ForwardBraking(
-                localizerFunction, drivetrainFunction, headingLinear, headingQuadratic, heading, safeDistanceBraking));
-        List<Double> strafeBraking = runOpMode(new StrafeBraking(
-                localizerFunction, drivetrainFunction, headingLinear, headingQuadratic, heading, safeDistanceBraking));
+        List<Double> forwardBraking = step(new ForwardBraking(localizerFunction, drivetrainFunction, headingLinear, headingQuadratic, heading, safeDistanceBraking));
+        List<Double> strafeBraking = step(new StrafeBraking(localizerFunction, drivetrainFunction, headingLinear, headingQuadratic, heading, safeDistanceBraking));
 
         double forwardLinear = forwardBraking.get(0);
         double forwardQuadratic = forwardBraking.get(1);
         double strafeLinear = strafeBraking.get(0);
         double strafeQuadratic = strafeBraking.get(1);
 
-        List<Double> forwardTranslational = runOpMode(new ForwardTranslational(localizerFunction, drivetrainFunction));
-        List<Double> strafeTranslational = runOpMode(new StrafeTranslational(localizerFunction, drivetrainFunction));
+        List<Double> forwardTranslational = step(new ForwardTranslational(localizerFunction, drivetrainFunction));
+        List<Double> strafeTranslational = step(new StrafeTranslational(localizerFunction, drivetrainFunction));
 
         double forwardTranslationalPrimary = forwardTranslational.get(0);
         double forwardTranslationalSecondary = forwardTranslational.get(1);
@@ -85,6 +75,21 @@ public class ForesightTuner extends Procedure {
 
         double strafeTranslationalPrimary = strafeTranslational.get(0);
         double strafeTranslationalSecondary = strafeTranslational.get(1);
+
+        measured("Max Forward Velocity", "the max forward velocity", forwardVelocity, true);
+        measured("Max Strafe Velocity", "the max strafe velocity", strafeVelocity, true);
+        measured("Forward Deceleration", "the natural forward deceleration", forwardDeceleration, true);
+        measured("Strafe Deceleration", "the natural strafe deceleration", strafeDeceleration, true);
+        measured("Forward Braking", "the linear coefficient", forwardLinear, false);
+        measured("Forward Braking", "the quadratic coefficient", forwardQuadratic, false);
+        measured("Strafe Braking", "the linear coefficient", strafeLinear, false);
+        measured("Strafe Braking", "the quadratic coefficient", strafeQuadratic, false);
+        measured("Forward Translational", "the primary kP", forwardTranslationalPrimary, true);
+        measured("Forward Translational", "the secondary kP", forwardTranslationalSecondary, true);
+        measured("Strafe Translational", "the primary kP", strafeTranslationalPrimary, true);
+        measured("Strafe Translational", "the secondary kP", strafeTranslationalSecondary, true);
+        measured("Forward Translational", "coast kV", coast, false);
+        measured("Forward Translational", "brake kV", brake, false);
 
         result("maxAchievableForwardVelocity", forwardVelocity);
         result("maxAchievableStrafeVelocity", strafeVelocity);
@@ -104,36 +109,58 @@ public class ForesightTuner extends Procedure {
         result("coast kV", coast);
         result("brake kV", brake);
 
-        code(
-                Language.JAVA,
-                "public static ForesightConfig foresightConfig = new ForesightConfig(\n" + "            c -> {\n"
-                        + "                Controller primaryTranslationalForward = Controller.proportional("
-                        + forwardTranslationalPrimary + ");\n"
-                        + "                Controller secondaryTranslationalForward = Controller.proportional("
-                        + forwardTranslationalSecondary + ");\n"
-                        + "                Controller primaryTranslationalLateral = Controller.proportional("
-                        + strafeTranslationalPrimary + ");\n"
-                        + "                Controller secondaryTranslationalLateral = Controller.proportional("
-                        + strafeTranslationalSecondary + ");\n" + "\n"
-                        + "                c.forwardTranslational.set(Controller.piecewise(secondaryTranslationalForward).put(2.5, primaryTranslationalForward));\n"
-                        + "                c.strafeTranslational.set(Controller.piecewise(secondaryTranslationalLateral).put(2.5, primaryTranslationalLateral));\n"
-                        + "\n"
-                        + "                c.coast.set(Controller.proportionalFeedforward("
-                        + coast + "));\n" + "                c.brake.set(Controller.proportionalFeedforward("
-                        + brake + "));\n" + "\n"
-                        + "                c.headingFeedback.set(Controller.proportional("
-                        + heading + "));\n" + "                c.headingBrakeCoefficients.set(Vector2D.cartesian("
-                        + headingLinear + ", " + headingQuadratic + "));\n" + "\n"
-                        + "                c.linearBrakeCoefficients.set(Matrix.diag("
-                        + forwardLinear + ", " + strafeLinear + "));\n"
-                        + "                c.quadraticBrakeCoefficients.set(Matrix.diag("
-                        + forwardQuadratic + ", " + strafeQuadratic + "));\n" + "\n"
-                        + "                c.maxAchievableForwardVelocity.set("
-                        + forwardVelocity + ");\n" + "                c.maxAchievableStrafeVelocity.set("
-                        + strafeVelocity + ");\n" + "                c.naturalForwardDeceleration.set("
-                        + forwardDeceleration + ");\n" + "                c.naturalStrafeDeceleration.set("
-                        + strafeDeceleration + ");\n" + "            }\n"
-                        + "    );");
+        code(Language.JAVA,
+                "public static ForesightConfig foresightConfig = new ForesightConfig(\n" +
+                        "            c -> {\n" +
+                        "                Controller primaryTranslationalForward = Controller.proportional("+forwardTranslationalPrimary+");\n" +
+                        "                Controller secondaryTranslationalForward = Controller.proportional("+forwardTranslationalSecondary+");\n" +
+                        "                Controller primaryTranslationalLateral = Controller.proportional("+strafeTranslationalPrimary+");\n" +
+                        "                Controller secondaryTranslationalLateral = Controller.proportional("+strafeTranslationalSecondary+");\n" +
+                        "\n" +
+                        "                c.forwardTranslational.set(Controller.piecewise(secondaryTranslationalForward).put(2.5, primaryTranslationalForward));\n" +
+                        "                c.strafeTranslational.set(Controller.piecewise(secondaryTranslationalLateral).put(2.5, primaryTranslationalLateral));\n" +
+                        "\n" +
+                        "                c.coast.set(Controller.proportionalFeedforward("+coast+"));\n" +
+                        "                c.brake.set(Controller.proportionalFeedforward("+brake+"));\n" +
+                        "\n" +
+                        "                c.headingFeedback.set(Controller.proportional("+heading+"));\n" +
+                        "                c.headingBrakeCoefficients.set(Vector2D.cartesian("+headingLinear+", "+headingQuadratic+"));\n" +
+                        "\n" +
+                        "                c.linearBrakeCoefficients.set(Matrix.diag("+forwardLinear+", "+strafeLinear+"));\n" +
+                        "                c.quadraticBrakeCoefficients.set(Matrix.diag("+forwardQuadratic+", "+strafeQuadratic+"));\n" +
+                        "\n" +
+                        "                c.maxAchievableForwardVelocity.set("+forwardVelocity+");\n" +
+                        "                c.maxAchievableStrafeVelocity.set("+strafeVelocity+");\n" +
+                        "                c.naturalForwardDeceleration.set("+forwardDeceleration+");\n" +
+                        "                c.naturalStrafeDeceleration.set("+strafeDeceleration+");\n" +
+                        "            }\n" +
+                        "    );");
+    }
+
+    /**
+     * Runs one step. If it fails, the tuning stops with the step's name and reason instead of the
+     * exception ending the procedure without a message.
+     */
+    private <T> T step(TuningOpMode<T> opMode) throws InterruptedException {
+        try {
+            return runOpMode(opMode);
+        } catch (RuntimeException e) {
+            abort(opMode.name + " failed: " + e.getMessage());
+            throw e; // not reached: abort() throws
+        }
+    }
+
+    /**
+     * A measured value that later steps drive with, or that goes into the generated config. Stops the
+     * tuning if it is NaN or infinite, or not positive where it must be. A NaN heading kP, for example,
+     * made every power the braking steps sent NaN; CachedMotor ignores NaN powers, so the motors kept
+     * their last power and the robot drove off.
+     */
+    private double measured(String step, String name, double value, boolean positive) throws InterruptedException {
+        if (!Double.isFinite(value) || (positive && value <= 0)) {
+            abort(step + " measured " + name + " = " + value + ", which can't be used. Run the tuner again.");
+        }
+        return value;
     }
 }
 
@@ -144,15 +171,8 @@ class ForwardVelocity extends TuningOpMode<Double> {
     private final ArrayDeque<Double> velocities = new ArrayDeque<>();
     public static double RECORD_NUMBER = 10;
 
-    public ForwardVelocity(
-            Function<HardwareMap, Localizer> localizerFunction,
-            Function<HardwareMap, Drivetrain> drivetrainFunction,
-            double distance) {
-        super(
-                "Max Forward Velocity",
-                "A tuner for finding the maximum achievable forward velocity. This will drive forward for " + distance
-                        + " inches and then likely drift past that position.",
-                false);
+    public ForwardVelocity(Function<HardwareMap, Localizer> localizerFunction, Function<HardwareMap, Drivetrain> drivetrainFunction, double distance) {
+        super("Max Forward Velocity", "A tuner for finding the maximum achievable forward velocity. This will drive forward for " + distance + " inches and then likely drift past that position.", false);
         this.localizerFunction = localizerFunction;
         this.drivetrainFunction = drivetrainFunction;
         this.distance = distance;
@@ -168,7 +188,7 @@ class ForwardVelocity extends TuningOpMode<Double> {
         localizer.setPose(Pose.zero());
         localizer.update();
 
-        DrivePowers power = new DrivePowers(1, 0, 0);
+        DrivePowers power = new DrivePowers(1,0,0);
 
         for (int i = 0; i < RECORD_NUMBER; i++) {
             velocities.add(0.0);
@@ -209,15 +229,8 @@ class StrafeVelocity extends TuningOpMode<Double> {
     private final ArrayDeque<Double> velocities = new ArrayDeque<>();
     public static double RECORD_NUMBER = 10;
 
-    public StrafeVelocity(
-            Function<HardwareMap, Localizer> localizerFunction,
-            Function<HardwareMap, Drivetrain> drivetrainFunction,
-            double distance) {
-        super(
-                "Max Strafe Velocity",
-                "A tuner for finding the maximum achievable strafe velocity. This will drive left for " + distance
-                        + " inches and then likely drift past that position.",
-                false);
+    public StrafeVelocity(Function<HardwareMap, Localizer> localizerFunction, Function<HardwareMap, Drivetrain> drivetrainFunction, double distance) {
+        super("Max Strafe Velocity", "A tuner for finding the maximum achievable strafe velocity. This will drive left for " + distance + " inches and then likely drift past that position.", false);
         this.localizerFunction = localizerFunction;
         this.drivetrainFunction = drivetrainFunction;
         this.distance = distance;
@@ -233,7 +246,7 @@ class StrafeVelocity extends TuningOpMode<Double> {
         localizer.setPose(Pose.zero());
         localizer.update();
 
-        DrivePowers power = new DrivePowers(0, 1, 0);
+        DrivePowers power = new DrivePowers(0,1,0);
 
         for (int i = 0; i < RECORD_NUMBER; i++) {
             velocities.add(0.0);
@@ -278,15 +291,8 @@ class ForwardDeceleration extends TuningOpMode<Double> {
     private long previousTimeNano;
     private boolean stopping;
 
-    public ForwardDeceleration(
-            Function<HardwareMap, Localizer> localizerFunction,
-            Function<HardwareMap, Drivetrain> drivetrainFunction,
-            double velocity) {
-        super(
-                "Forward Deceleration",
-                "A tuner for finding the deceleration of the robot when moving forward. This will move forward until it reaches "
-                        + velocity + " inches per second.",
-                false);
+    public ForwardDeceleration(Function<HardwareMap, Localizer> localizerFunction, Function<HardwareMap, Drivetrain> drivetrainFunction, double velocity) {
+        super("Forward Deceleration", "A tuner for finding the deceleration of the robot when moving forward. This will move forward until it reaches " + velocity + " inches per second.", false);
 
         this.localizerFunction = localizerFunction;
         this.drivetrainFunction = drivetrainFunction;
@@ -323,6 +329,8 @@ class ForwardDeceleration extends TuningOpMode<Double> {
 
                 stopping = true;
                 drivetrain.stop(false);
+            } else {
+                drivetrain.drive(power, false);
             }
         }
 
@@ -330,6 +338,7 @@ class ForwardDeceleration extends TuningOpMode<Double> {
 
         while (!end) {
             localizer.update();
+            drivetrain.stop(false);
             double currentVelocity = localizer.twist().toVector2D().x();
             long currentTimeNano = System.nanoTime();
             double dt = (currentTimeNano - previousTimeNano) / 1e9;
@@ -376,15 +385,8 @@ class StrafeDeceleration extends TuningOpMode<Double> {
     private long previousTimeNano;
     private boolean stopping;
 
-    public StrafeDeceleration(
-            Function<HardwareMap, Localizer> localizerFunction,
-            Function<HardwareMap, Drivetrain> drivetrainFunction,
-            double velocity) {
-        super(
-                "Strafe Deceleration",
-                "A tuner for finding the deceleration of the robot when moving laterally. This will drive left until it reaches "
-                        + velocity + " inches per second.",
-                false);
+    public StrafeDeceleration(Function<HardwareMap, Localizer> localizerFunction, Function<HardwareMap, Drivetrain> drivetrainFunction, double velocity) {
+        super("Strafe Deceleration", "A tuner for finding the deceleration of the robot when moving laterally. This will drive left until it reaches " + velocity + " inches per second.", false);
 
         this.localizerFunction = localizerFunction;
         this.drivetrainFunction = drivetrainFunction;
@@ -421,12 +423,15 @@ class StrafeDeceleration extends TuningOpMode<Double> {
 
                 stopping = true;
                 drivetrain.stop(false);
+            } else {
+                drivetrain.drive(power, false);
             }
         }
 
         boolean end = false;
 
         while (!end) {
+            drivetrain.stop(false);
             localizer.update();
             double currentVelocity = localizer.twist().toVector2D().y();
             long currentTimeNano = System.nanoTime();
@@ -468,7 +473,7 @@ class HeadingBraking extends TuningOpMode<List<Double>> {
     Function<HardwareMap, Drivetrain> drivetrainFunction;
 
     private static double[] POWERS;
-    public static double MAX_BRAKE_TIME = 3; // seconds, the robot shouldn't take longer than this to brake
+    public static double MAX_BRAKE_TIME = 3; //seconds, the robot shouldn't take longer than this to brake
 
     public static int trials = 12;
     public static double maxPower = 1;
@@ -488,14 +493,10 @@ class HeadingBraking extends TuningOpMode<List<Double>> {
     private double measuredVelocity;
     private double totalHeading;
     private double previousHeading;
-    //    private VoltageSensor voltageSensor;
+//    private VoltageSensor voltageSensor;
 
-    public HeadingBraking(
-            Function<HardwareMap, Localizer> localizerFunction, Function<HardwareMap, Drivetrain> drivetrainFunction) {
-        super(
-                "Heading Braking",
-                "A tuner for finding the Heading Braking Coefficients. The robot will turn back at forth at various speed levels.",
-                false);
+    public HeadingBraking(Function<HardwareMap, Localizer> localizerFunction, Function<HardwareMap, Drivetrain> drivetrainFunction) {
+        super("Heading Braking", "A tuner for finding the Heading Braking Coefficients. The robot will turn back at forth at various speed levels.", false);
 
         this.localizerFunction = localizerFunction;
         this.drivetrainFunction = drivetrainFunction;
@@ -530,11 +531,11 @@ class HeadingBraking extends TuningOpMode<List<Double>> {
                 power = POWERS[iteration];
             }
 
-            //            if (state != State.DONE) {
-            //                double voltage = voltageSensor.getVoltage();
-            //                double duty = state == State.BRAKE ? -brakingPower * direction: power * direction;
-            //                double appliedVoltage = voltage * duty;
-            //            }
+//            if (state != State.DONE) {
+//                double voltage = voltageSensor.getVoltage();
+//                double duty = state == State.BRAKE ? -brakingPower * direction: power * direction;
+//                double appliedVoltage = voltage * duty;
+//            }
 
             switch (state) {
                 case DRIVE: {
@@ -559,7 +560,7 @@ class HeadingBraking extends TuningOpMode<List<Double>> {
                     double endHeading = totalHeading;
                     double brakingDistance = Math.abs(endHeading - startHeading);
 
-                    velocityToBrakingDistance.add(new double[] {measuredVelocity, brakingDistance});
+                    velocityToBrakingDistance.add(new double[]{measuredVelocity, brakingDistance});
 
                     iteration++;
 
@@ -576,10 +577,10 @@ class HeadingBraking extends TuningOpMode<List<Double>> {
                     }
                     break;
                 }
-                case DONE: {
-                }
+                case DONE: {}
             }
         }
+
 
         return coefficients;
     }
@@ -590,8 +591,13 @@ class HeadingBraking extends TuningOpMode<List<Double>> {
         DONE
     }
 
-    private static double[] biasedGradient(int count, double max, double min, double bias) {
-        if (count < 2) return new double[] {max};
+    private static double[] biasedGradient(
+            int count,
+            double max,
+            double min,
+            double bias
+    ) {
+        if (count < 2) return new double[]{  max};
 
         double[] values = new double[count];
 
@@ -627,12 +633,8 @@ class HeadingTuner extends TuningOpMode<Double> {
     private boolean done = false;
     private double lastTime = 0.0;
 
-    public HeadingTuner(
-            Function<HardwareMap, Localizer> localizerFunction, Function<HardwareMap, Drivetrain> drivetrainFunction) {
-        super(
-                "Heading Tuner",
-                "A tuner for finding the Heading Tuning Coefficients using system identification. This will spin the robot in place for a couple seconds.",
-                false);
+    public HeadingTuner(Function<HardwareMap, Localizer> localizerFunction, Function<HardwareMap, Drivetrain> drivetrainFunction) {
+        super("Heading Tuner", "A tuner for finding the Heading Tuning Coefficients using system identification. This will spin the robot in place for a couple seconds.", false);
         this.localizerFunction = localizerFunction;
         this.drivetrainFunction = drivetrainFunction;
     }
@@ -679,6 +681,8 @@ class HeadingTuner extends TuningOpMode<Double> {
                     done = true;
                     systemIdentification();
                     drivetrain.drive(new DrivePowers(0.0, 0.0, 0.0), false);
+                } else {
+                    drivetrain.drive(new DrivePowers(0.0, 0.0, POWER), false);
                 }
             }
         }
@@ -715,9 +719,16 @@ class HeadingTuner extends TuningOpMode<Double> {
             y.add(Math.log(K - vel));
             x.add(times.get(i));
         }
-        double[] linReg = linearFit(x.toArray(new Double[0]), y.toArray(new Double[0]));
-        if (linReg[1] == 0) throw new IllegalArgumentException("Failed calibration.");
-        this.tau = -1.0 / linReg[1];
+        double[] linReg = linearFit(
+                x.toArray(new Double[0]),
+                y.toArray(new Double[0])
+        );
+        // With fewer than two samples between 10% and 80% the slope is NaN, which `== 0` let through.
+        if (x.size() < 2 || !Double.isFinite(linReg[1]) || linReg[1] >= 0) {
+            throw new IllegalArgumentException("Failed calibration: only " + x.size()
+                    + " samples while the robot sped up.");
+        }
+        this.tau = -1.0/linReg[1];
     }
 }
 
@@ -737,6 +748,10 @@ class ForwardBraking extends TuningOpMode<List<Double>> {
     public double brakingPower = 0.001;
     public double distance;
     public double IDLE_SECONDS = 1;
+    /** Stops the robot if it gets this many inches past the test's ends. */
+    public double OVERRUN = 24;
+    /** Stops the robot if it drifts this many inches across the test's direction. */
+    public double DRIFT = 48;
 
     private final ElapsedTime timer = new ElapsedTime();
     private final List<double[]> velocityToBrakingDistance = new ArrayList<>();
@@ -747,19 +762,9 @@ class ForwardBraking extends TuningOpMode<List<Double>> {
     private Vector2D startPosition;
     private double measuredVelocity;
 
-    public ForwardBraking(
-            Function<HardwareMap, Localizer> localizerFunction,
-            Function<HardwareMap, Drivetrain> drivetrainFunction,
-            double headingLinear,
-            double headingQuadratic,
-            double headingKP,
-            double distance) {
-        super(
-                "Forward Braking",
-                "A tuner for finding the Forward Braking Coefficients by driving forward and backward at various speeds. Please ensure that you have plenty of room at least "
-                        + distance
-                        + " inches ahead of the robot, but also tile space behind and laterally around the robot.",
-                false);
+    public ForwardBraking(Function<HardwareMap, Localizer> localizerFunction, Function<HardwareMap, Drivetrain> drivetrainFunction,
+                          double headingLinear, double headingQuadratic, double headingKP, double distance) {
+        super("Forward Braking", "A tuner for finding the Forward Braking Coefficients by driving forward and backward at various speeds. Please ensure that you have plenty of room at least " + distance + " inches ahead of the robot, but also tile space behind and laterally around the robot.", false);
         this.localizerFunction = localizerFunction;
         this.drivetrainFunction = drivetrainFunction;
         this.headingLinear = headingLinear;
@@ -786,10 +791,16 @@ class ForwardBraking extends TuningOpMode<List<Double>> {
         localizer.update();
         timer.reset();
 
-        drivetrain.drive(new DrivePowers(maxPower, 0, 0), false);
+        drivetrain.drive(new DrivePowers(maxPower,0,0), false);
 
         while (state != State.DONE && !isStopRequested()) {
             localizer.update();
+            if (Math.abs(localizer.pose().x()) > distance + OVERRUN || Math.abs(localizer.pose().y()) > DRIFT) {
+                drivetrain.stop();
+                throw new IllegalStateException(String.format(Locale.US,
+                        "stopped the robot at (%.0f, %.0f): more than %.0f in past the test's ends or %.0f in across them",
+                        localizer.pose().x(), localizer.pose().y(), OVERRUN, DRIFT));
+            }
             direction = (iteration % 2 == 0) ? 1 : -1;
             if (iteration < POWERS.length) {
                 power = POWERS[iteration];
@@ -797,8 +808,7 @@ class ForwardBraking extends TuningOpMode<List<Double>> {
 
             switch (state) {
                 case DRIVE: {
-                    if ((direction > 0 && Math.abs(localizer.pose().x()) >= distance)
-                            || (direction < 0 && Math.abs(localizer.pose().x()) <= 12)) {
+                    if ((direction > 0 && Math.abs(localizer.pose().x()) >= distance) || (direction < 0 && Math.abs(localizer.pose().x()) <= 12)) {
                         startPosition = localizer.pose().toVector2D();
                         measuredVelocity = localizer.velocity().toVector2D().magnitude();
 
@@ -811,7 +821,7 @@ class ForwardBraking extends TuningOpMode<List<Double>> {
                     break;
                 }
                 case BRAKE: {
-                    if (localizer.velocity().toVector2D().magnitude() > 0.25 && timer.seconds() < MAX_BRAKE_TIME) {
+                    if (localizer.velocity().toVector2D().x() * direction > 0.25 && timer.seconds() < MAX_BRAKE_TIME) {
                         brake(drivetrain, localizer);
                         break;
                     }
@@ -824,8 +834,7 @@ class ForwardBraking extends TuningOpMode<List<Double>> {
                     if (timer.seconds() > IDLE_SECONDS) state = State.DRIVE;
                     break;
                 }
-                case DONE: {
-                }
+                case DONE: {}
             }
         }
 
@@ -839,12 +848,13 @@ class ForwardBraking extends TuningOpMode<List<Double>> {
 
     private double getHeadingPower(Localizer localizer) {
         double angularVel = localizer.velocity().omega;
-        double brakeDist =
-                headingLinear * angularVel + headingQuadratic * angularVel * angularVel * Math.signum(angularVel);
+        double brakeDist = headingLinear * angularVel +
+                headingQuadratic * angularVel * angularVel * Math.signum(angularVel);
         double headingError = Angle.normalizeSigned(-localizer.pose().heading());
         double error = headingError - brakeDist;
         return Utils.clamp(headingKP * error, -0.3, 1.0) / 2;
     }
+
 
     private void drive(Drivetrain drivetrain, Localizer localizer) {
         drivetrain.drive(new DrivePowers(power * direction, 0.0, getHeadingPower(localizer)), false);
@@ -868,7 +878,7 @@ class ForwardBraking extends TuningOpMode<List<Double>> {
         Vector2D endPosition = localizer.pose().toVector2D();
         double brakingDistance = endPosition.minus(startPosition).magnitude();
 
-        velocityToBrakingDistance.add(new double[] {measuredVelocity, brakingDistance});
+        velocityToBrakingDistance.add(new double[]{measuredVelocity, brakingDistance});
 
         iteration++;
 
@@ -889,7 +899,7 @@ class ForwardBraking extends TuningOpMode<List<Double>> {
     }
 
     private static double[] biasedGradient(int count, double max, double min, double bias) {
-        if (count < 2) return new double[] {max};
+        if (count < 2) return new double[]{max};
         double[] values = new double[count];
         for (int i = 0; i < count; i++) {
             double t = (double) i / (count - 1);
@@ -909,13 +919,17 @@ class StrafeBraking extends TuningOpMode<List<Double>> {
 
     private double[] POWERS;
     public double MAX_BRAKE_TIME = 7.0;
-    public int trials = 5;
+    public  int trials = 5;
     public double maxPower = 1;
     public double minPower = 0.3;
     public double bias = 1.5;
     public double brakingPower = 0.001;
     public double distance;
     public double IDLE_SECONDS = 1;
+    /** Stops the robot if it gets this many inches past the test's ends. */
+    public double OVERRUN = 24;
+    /** Stops the robot if it drifts this many inches across the test's direction. */
+    public double DRIFT = 48;
 
     private final ElapsedTime timer = new ElapsedTime();
     private final List<double[]> velocityToBrakingDistance = new ArrayList<>();
@@ -926,19 +940,9 @@ class StrafeBraking extends TuningOpMode<List<Double>> {
     private Vector2D startPosition;
     private double measuredVelocity;
 
-    public StrafeBraking(
-            Function<HardwareMap, Localizer> localizerFunction,
-            Function<HardwareMap, Drivetrain> drivetrainFunction,
-            double headingLinear,
-            double headingQuadratic,
-            double headingKP,
-            double distance) {
-        super(
-                "Strafe Braking",
-                "A tuner for finding the Strafe Braking Coefficients by strafing left and right at various speeds. Please ensure that you have plenty of room at least "
-                        + distance
-                        + " inches to the left and right of the robot and space in front and behind the robot.",
-                false);
+    public StrafeBraking(Function<HardwareMap, Localizer> localizerFunction, Function<HardwareMap, Drivetrain> drivetrainFunction,
+                         double headingLinear, double headingQuadratic, double headingKP, double distance) {
+        super("Strafe Braking", "A tuner for finding the Strafe Braking Coefficients by strafing left and right at various speeds. Please ensure that you have plenty of room at least " + distance + " inches to the left and right of the robot and space in front and behind the robot.", false);
         this.localizerFunction = localizerFunction;
         this.drivetrainFunction = drivetrainFunction;
         this.headingLinear = headingLinear;
@@ -965,10 +969,16 @@ class StrafeBraking extends TuningOpMode<List<Double>> {
         localizer.update();
         timer.reset();
 
-        drivetrain.drive(new DrivePowers(0, maxPower, 0), false);
+        drivetrain.drive(new DrivePowers(0,maxPower,0), false);
 
         while (state != State.DONE && !isStopRequested()) {
             localizer.update();
+            if (Math.abs(localizer.pose().y()) > distance + OVERRUN || Math.abs(localizer.pose().x()) > DRIFT) {
+                drivetrain.stop();
+                throw new IllegalStateException(String.format(Locale.US,
+                        "stopped the robot at (%.0f, %.0f): more than %.0f in past the test's ends or %.0f in across them",
+                        localizer.pose().x(), localizer.pose().y(), OVERRUN, DRIFT));
+            }
             direction = (iteration % 2 == 0) ? 1 : -1;
             if (iteration < POWERS.length) {
                 power = POWERS[iteration];
@@ -976,8 +986,8 @@ class StrafeBraking extends TuningOpMode<List<Double>> {
 
             switch (state) {
                 case DRIVE: {
-                    if ((direction > 0 && Math.abs(localizer.pose().y()) > distance)
-                            || (direction < 0 && Math.abs(localizer.pose().y()) <= 6)) {
+                    if ((direction > 0 && Math.abs(localizer.pose().y()) > distance) ||
+                            (direction < 0 && Math.abs(localizer.pose().y()) <= 6)) {
                         startPosition = localizer.pose().toVector2D();
                         measuredVelocity = localizer.velocity().toVector2D().magnitude();
 
@@ -990,7 +1000,7 @@ class StrafeBraking extends TuningOpMode<List<Double>> {
                     break;
                 }
                 case BRAKE: {
-                    if (localizer.velocity().toVector2D().magnitude() > 0.25 && timer.seconds() < MAX_BRAKE_TIME) {
+                    if (localizer.velocity().toVector2D().y() * direction > 0.25 && timer.seconds() < MAX_BRAKE_TIME) {
                         brake(drivetrain, localizer);
                         break;
                     }
@@ -1003,8 +1013,7 @@ class StrafeBraking extends TuningOpMode<List<Double>> {
                     if (timer.seconds() > IDLE_SECONDS) state = State.DRIVE;
                     break;
                 }
-                case DONE: {
-                }
+                case DONE: {}
             }
         }
 
@@ -1018,8 +1027,8 @@ class StrafeBraking extends TuningOpMode<List<Double>> {
 
     private double getHeadingPower(Localizer localizer) {
         double angularVel = localizer.velocity().omega;
-        double brakeDist =
-                headingLinear * angularVel + headingQuadratic * angularVel * angularVel * Math.signum(angularVel);
+        double brakeDist = headingLinear * angularVel +
+                headingQuadratic * angularVel * angularVel * Math.signum(angularVel);
         double headingError = Angle.normalizeSigned(-localizer.pose().heading());
         double error = headingError - brakeDist;
         return Utils.clamp(headingKP * error, -0.3, 1.0) / 2;
@@ -1047,7 +1056,7 @@ class StrafeBraking extends TuningOpMode<List<Double>> {
         Vector2D endPosition = localizer.pose().toVector2D();
         double brakingDistance = endPosition.minus(startPosition).magnitude();
 
-        velocityToBrakingDistance.add(new double[] {measuredVelocity, brakingDistance});
+        velocityToBrakingDistance.add(new double[]{measuredVelocity, brakingDistance});
 
         iteration++;
 
@@ -1068,7 +1077,7 @@ class StrafeBraking extends TuningOpMode<List<Double>> {
     }
 
     private static double[] biasedGradient(int count, double max, double min, double bias) {
-        if (count < 2) return new double[] {max};
+        if (count < 2) return new double[]{max};
         double[] values = new double[count];
         for (int i = 0; i < count; i++) {
             double t = (double) i / (count - 1);
@@ -1101,12 +1110,8 @@ class ForwardTranslational extends TuningOpMode<List<Double>> {
     private boolean done = false;
     private double lastTime = 0.0;
 
-    public ForwardTranslational(
-            Function<HardwareMap, Localizer> localizerFunction, Function<HardwareMap, Drivetrain> drivetrainFunction) {
-        super(
-                "Forward Translational",
-                "A tuner for finding the Forward Translational kP coefficients using system identification. This will move around 12-24 inches in front of the robot and then stop.",
-                false);
+    public ForwardTranslational(Function<HardwareMap, Localizer> localizerFunction, Function<HardwareMap, Drivetrain> drivetrainFunction) {
+        super("Forward Translational", "A tuner for finding the Forward Translational kP coefficients using system identification. This will move around 12-24 inches in front of the robot and then stop.", false);
         this.localizerFunction = localizerFunction;
         this.drivetrainFunction = drivetrainFunction;
     }
@@ -1153,6 +1158,8 @@ class ForwardTranslational extends TuningOpMode<List<Double>> {
                     done = true;
                     systemIdentification();
                     drivetrain.drive(new DrivePowers(0.0, 0.0, 0.0), false);
+                } else {
+                    drivetrain.drive(new DrivePowers(POWER, 0.0, 0.0), false);
                 }
             }
         }
@@ -1194,9 +1201,16 @@ class ForwardTranslational extends TuningOpMode<List<Double>> {
             y.add(Math.log(K - vel));
             x.add(times.get(i));
         }
-        double[] linReg = linearFit(x.toArray(new Double[0]), y.toArray(new Double[0]));
-        if (linReg[1] == 0) throw new IllegalArgumentException("Failed calibration.");
-        this.tau = -1.0 / linReg[1];
+        double[] linReg = linearFit(
+                x.toArray(new Double[0]),
+                y.toArray(new Double[0])
+        );
+        // With fewer than two samples between 10% and 80% the slope is NaN, which `== 0` let through.
+        if (x.size() < 2 || !Double.isFinite(linReg[1]) || linReg[1] >= 0) {
+            throw new IllegalArgumentException("Failed calibration: only " + x.size()
+                    + " samples while the robot sped up.");
+        }
+        this.tau = -1.0/linReg[1];
     }
 }
 
@@ -1220,12 +1234,8 @@ class StrafeTranslational extends TuningOpMode<List<Double>> {
     private boolean done = false;
     private double lastTime = 0.0;
 
-    public StrafeTranslational(
-            Function<HardwareMap, Localizer> localizerFunction, Function<HardwareMap, Drivetrain> drivetrainFunction) {
-        super(
-                "Strafe Translational",
-                "A tuner for finding the Strafe Translational kP coefficients using system identification. This will move around 12-24 inches to the left and right of the robot and then stop.",
-                false);
+    public StrafeTranslational(Function<HardwareMap, Localizer> localizerFunction, Function<HardwareMap, Drivetrain> drivetrainFunction) {
+        super("Strafe Translational", "A tuner for finding the Strafe Translational kP coefficients using system identification. This will move around 12-24 inches to the left and right of the robot and then stop.", false);
         this.localizerFunction = localizerFunction;
         this.drivetrainFunction = drivetrainFunction;
     }
@@ -1272,6 +1282,8 @@ class StrafeTranslational extends TuningOpMode<List<Double>> {
                     done = true;
                     systemIdentification();
                     drivetrain.drive(new DrivePowers(0.0, 0.0, 0.0), false);
+                } else {
+                    drivetrain.drive(new DrivePowers(0.0, POWER, 0.0), false);
                 }
             }
         }
@@ -1312,8 +1324,15 @@ class StrafeTranslational extends TuningOpMode<List<Double>> {
             y.add(Math.log(K - vel));
             x.add(times.get(i));
         }
-        double[] linReg = linearFit(x.toArray(new Double[0]), y.toArray(new Double[0]));
-        if (linReg[1] == 0) throw new IllegalArgumentException("Failed calibration.");
-        this.tau = -1.0 / linReg[1];
+        double[] linReg = linearFit(
+                x.toArray(new Double[0]),
+                y.toArray(new Double[0])
+        );
+        // With fewer than two samples between 10% and 80% the slope is NaN, which `== 0` let through.
+        if (x.size() < 2 || !Double.isFinite(linReg[1]) || linReg[1] >= 0) {
+            throw new IllegalArgumentException("Failed calibration: only " + x.size()
+                    + " samples while the robot sped up.");
+        }
+        this.tau = -1.0/linReg[1];
     }
 }
