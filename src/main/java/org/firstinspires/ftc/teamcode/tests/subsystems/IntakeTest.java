@@ -11,33 +11,38 @@ import com.acmerobotics.dashboard.config.Config;
 @TeleOp(name = "IntakeTest", group = "Test")
 public class IntakeTest extends OpMode {
 
-    public static double fast = 0.5;
-    // change these for comp, js kept them bc they are too loud and annoying while testing and didnt want to contstantly have to switch them in ftc dashboard.
-    public static double slow = 0.4;
+    public static double fast = 1; // fyi when testing lower these to 0.7, and 0.5 otherwise you will loose hearing
+    public static double slow = 0.8;
 
     public static String TRANSFER_NAME = "idk";
-    public static double open = 0.0;
+    public static double open = 0.4;
     public static double close = 1.0;
 
-    public static boolean openTransfer = true;
+    public static double shooterPower = 0.8; // temporary, since LUT is not tuned
 
-    private DcMotor intakeBackT, intakeFrontT, intakeBackB, intakeFrontB;
+    public static boolean openTransfer = true;
+    public static boolean shooterOn = false;
+
+    private DcMotor shooterBack, shooterFront, intakeBack, intakeFront;
     private Servo transfer;
 
     @Override
     public void init() {
-        intakeBackT = hardwareMap.get(DcMotor.class, "intakeBackT");
-        intakeFrontT = hardwareMap.get(DcMotor.class, "intakeFrontT");
-        intakeBackB = hardwareMap.get(DcMotor.class, "intakeBackB");
-        intakeFrontB = hardwareMap.get(DcMotor.class, "intakeFrontB");
+        shooterBack = hardwareMap.get(DcMotor.class, "intakeBackT");
+        shooterFront = hardwareMap.get(DcMotor.class, "intakeFrontT");
+
+        intakeBack = hardwareMap.get(DcMotor.class, "intakeBackB");
+        intakeFront = hardwareMap.get(DcMotor.class, "intakeFrontB");
+
         transfer = hardwareMap.get(Servo.class, TRANSFER_NAME);
     }
 
-    private void setPower(double front, double back) {
-        intakeFrontT.setPower(front);
-        intakeFrontB.setPower(front);
-        intakeBackT.setPower(back);
-        intakeBackB.setPower(back);
+    private void setPower(double front, double back, double shooter) {
+        intakeFront.setPower(front);
+        intakeBack.setPower(back);
+
+        shooterBack.setPower(shooter);
+        shooterFront.setPower(shooter);
     }
 
     @Override
@@ -57,7 +62,12 @@ public class IntakeTest extends OpMode {
             if (gamepad1.b) back = fast;
         }
 
-        setPower(front, back);
+        if (gamepad1.leftBumperWasPressed()) {
+            shooterOn = !shooterOn;
+        }
+        double shooter = shooterOn ? shooterPower : 0.0;
+
+        setPower(front, back, shooter);
 
         if (gamepad1.rightBumperWasPressed()) {
             openTransfer = !openTransfer;
