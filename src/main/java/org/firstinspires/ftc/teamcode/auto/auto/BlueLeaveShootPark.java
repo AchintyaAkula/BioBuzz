@@ -18,7 +18,7 @@ import org.firstinspires.ftc.teamcode.subsystems.shooter.ShooterSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.shooter.hood.HoodSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.shooter.turret.TurretSubsystem;
 
-@Autonomous(name = "RedLeaveShootPark", group = "Red")
+@Autonomous(name = "BlueLeaveShootPark", group = "Blue")
 public class BlueLeaveShootPark extends OpMode {
 
     private Follower follower;
