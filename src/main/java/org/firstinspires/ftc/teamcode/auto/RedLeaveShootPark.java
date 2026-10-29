@@ -20,7 +20,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.pedro.Constants;
 
-@Autonomous(name = "Red Auto", group = "Red")
+@Autonomous(name = "RedLeaveShootPark", group = "Red")
 public class RedLeaveShootPark extends OpMode {
 
     private Follower follower;
