@@ -57,7 +57,7 @@ public class BlueShootLeftFlower extends OpMode {
         shooter = new ShooterSubsystem(hardwareMap, telemetry);
         intake = new IntakeSubsystem();
 
-        turret.initTurret();
+        turret.initTurret(false, follower);
         shooter.initShooter(false, follower);          // false = not red alliance
         hood.initHood(hoodServo, false, follower);     // false = not red alliance
     }
