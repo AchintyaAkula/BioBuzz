@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.auto.auto;
+package org.firstinspires.ftc.teamcode.auto.blue;
 
 import static com.pedropathing.api.Paths.line;
 
@@ -52,7 +52,7 @@ public class BlueLeaveShootPark extends OpMode {
     @Override
     public void init() {
         Servo hoodServo = hardwareMap.get(Servo.class, "hood");
-        follower = Constants.INSTANCE.create(hardwareMap);
+        follower = Constants.INSTANCE.create(haradwareMap);
         follower.setPose(start);
         turret.initTurret();
         shooter.initShooter(false, follower);
