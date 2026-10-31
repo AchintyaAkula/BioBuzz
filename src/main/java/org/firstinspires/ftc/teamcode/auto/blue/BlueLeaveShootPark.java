@@ -52,7 +52,7 @@ public class BlueLeaveShootPark extends OpMode {
     @Override
     public void init() {
         Servo hoodServo = hardwareMap.get(Servo.class, "hood");
-        follower = Constants.INSTANCE.create(haradwareMap);
+        follower = Constants.INSTANCE.create(hardwareMap);
         follower.setPose(start);
         turret.initTurret(false, follower);
         shooter.initShooter(false, follower);

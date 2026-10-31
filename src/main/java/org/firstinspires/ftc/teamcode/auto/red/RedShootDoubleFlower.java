@@ -57,7 +57,7 @@ public class RedShootDoubleFlower extends OpMode {
         shooter = new ShooterSubsystem(hardwareMap, telemetry);
         intake = new IntakeSubsystem();
 
-        turret.initTurret();
+        turret.initTurret(true, follower);
         shooter.initShooter(true, follower);          // true = red alliance
         hood.initHood(hoodServo, true, follower);     // true = red alliance
     }
