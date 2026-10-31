@@ -57,7 +57,7 @@ public class RedLeaveShootPark extends OpMode {
         Servo hoodServo = hardwareMap.get(Servo.class, "hood");
         follower = Constants.INSTANCE.create(hardwareMap);
         follower.setPose(start);
-        turret.initTurret();
+        turret.initTurret(true, follower);
         shooter.initShooter(true, follower);
         hood.initHood(hoodServo, true, follower);
 

@@ -56,7 +56,7 @@ public class RedShootLeftFlower extends OpMode {
         shooter = new ShooterSubsystem(hardwareMap, telemetry);
         intake = new IntakeSubsystem();
 
-        turret.initTurret();
+        turret.initTurret(true, follower);
         shooter.initShooter(true, follower);
         hood.initHood(hoodServo, true, follower);
     }

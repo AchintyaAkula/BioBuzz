@@ -5,11 +5,10 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Servo;
-import com.acmerobotics.dashboard.config.Config;
 
 @Config
 @TeleOp(name = "IntakeTest", group = "Test")
-public class IntakeTest extends OpMode {
+public class IntakeTest2 extends OpMode {
 
     public static double fast = 1; // fyi when testing lower these to 0.7, and 0.5 otherwise you will loose hearing
     public static double slow = 0.8;

@@ -1,19 +1,26 @@
 package org.firstinspires.ftc.teamcode.subsystems.shooter.turret;
 
+import com.pedropathing.follower.Follower;
+import com.pedropathing.math.Pose;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 
+import org.firstinspires.ftc.teamcode.constants.ShooterConstants;
 import org.firstinspires.ftc.teamcode.constants.TurretConstants;
 
 public class TurretSubsystem {
     private final HardwareMap hardwareMap;
     private Servo turret;
+    private Follower follower;
+    private boolean isRedAlliance;
 
     public TurretSubsystem(HardwareMap hardwareMap) {
         this.hardwareMap = hardwareMap;
     }
 
-    public void initTurret() {
+    public void initTurret(boolean isRedAlliance, Follower follower) {
+        this.isRedAlliance = isRedAlliance;
+        this.follower = follower;
         turret = hardwareMap.get(Servo.class, "turret");
         center();
     }
@@ -30,6 +37,16 @@ public class TurretSubsystem {
     }
 
     public void aimTurret() {
-        // ill finish this later
+        Pose pose = follower.pose();
+
+        double goalX = isRedAlliance ? ShooterConstants.RED_GOAL_X : ShooterConstants.BLUE_GOAL_X;
+        double goalY = isRedAlliance ? ShooterConstants.RED_GOAL_Y : ShooterConstants.BLUE_GOAL_Y;
+
+        double fieldAngle = Math.toDegrees(Math.atan2(goalY - pose.y(), goalX - pose.x()));
+        double relative = fieldAngle - Math.toDegrees(pose.heading()) + TurretConstants.ANGLE_OFFSET_DEGREES;
+
+        relative = ((relative + 180) % 360 + 360) % 360 - 180;
+
+        setAngle(relative);
     }
 }
