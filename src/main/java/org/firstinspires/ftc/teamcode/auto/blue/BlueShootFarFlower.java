@@ -9,14 +9,12 @@ import com.pedropathing.math.Pose;
 import com.pedropathing.paths.Path;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
-import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.pedro.Constants;
-import org.firstinspires.ftc.teamcode.subsystems.IntakeState;
+import org.firstinspires.ftc.teamcode.util.PoseStorage;
 import org.firstinspires.ftc.teamcode.subsystems.IntakeSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.shooter.ShooterSubsystem;
-import org.firstinspires.ftc.teamcode.subsystems.shooter.hood.HoodSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.shooter.turret.TurretSubsystem;
 
 
@@ -29,7 +27,6 @@ public class BlueShootFarFlower extends OpMode {
 
     // Subsystems (created in init(), because hardwareMap is not ready before that)
     private TurretSubsystem turret;
-    private HoodSubsystem hood;
     private ShooterSubsystem shooter;
     private IntakeSubsystem intake;
 
@@ -46,20 +43,17 @@ public class BlueShootFarFlower extends OpMode {
 
     @Override
     public void init() {
-        Servo hoodServo = hardwareMap.get(Servo.class, "hood");
 
         follower = Constants.INSTANCE.create(hardwareMap);
         follower.setPose(start);
         follower.update();
 
         turret = new TurretSubsystem(hardwareMap);
-        hood = new HoodSubsystem();
         shooter = new ShooterSubsystem(hardwareMap, telemetry);
-        intake = new IntakeSubsystem();
+        intake = new IntakeSubsystem(hardwareMap, follower);
 
         turret.initTurret(false, follower);           // false = not red alliance
         shooter.initShooter(false, follower);         // false = not red alliance
-        hood.initHood(hoodServo, false, follower);    // false = not red alliance
     }
 
     @Override
@@ -70,9 +64,11 @@ public class BlueShootFarFlower extends OpMode {
     @Override
     public void loop() {
         follower.update();
+        PoseStorage.save(follower.pose()); // handoff to teleop: where the robot really is
         autonomousUpdate();
+        intake.update();
         turret.aimTurret();
-        hood.runhood();
+        shooter.runShooter(); // always on, power from current distance every loop
 
         telemetry.addData("state", state);
         telemetry.addData("x", follower.pose().x());
@@ -97,20 +93,20 @@ public class BlueShootFarFlower extends OpMode {
             // ---------- at shoot1 ----------
             case 1: // arrived -> command 1
                 if (!follower.isBusy()) {
-                    // ===== COMMAND 1 AFTER shoot1 =====
                     setState(2);
                 }
                 break;
 
             case 2: // wait, then command 2
-                if (stateTimer.seconds() > 0.5) {
-                    // ===== COMMAND 2 AFTER shoot1 =====
+                if (stateTimer.seconds() > 1) {
+                    intake.transferOn();
                     setState(3);
                 }
                 break;
 
             case 3: // wait, then drive path 2
-                if (stateTimer.seconds() > 0.5) {
+                if (stateTimer.seconds() > 1) {
+                    intake.intakeOff();
                     follower.follow(path2());
                     setState(4);
                 }
@@ -126,6 +122,7 @@ public class BlueShootFarFlower extends OpMode {
 
             case 5: // path 3 done -> straight to intake spot
                 if (!follower.isBusy()) {
+                    intake.intakeOn(); // run while driving in, side picked from velocity
                     follower.follow(intake1());
                     setState(6);
                 }
@@ -134,14 +131,14 @@ public class BlueShootFarFlower extends OpMode {
             // ---------- at intake1 ----------
             case 6: // arrived -> command 1
                 if (!follower.isBusy()) {
-                    // ===== COMMAND 1 AFTER intake1 =====
+                    intake.intakeOn();
                     setState(7);
                 }
                 break;
 
             case 7: // wait, then command 2
-                if (stateTimer.seconds() > 0.5) {
-                    // ===== COMMAND 2 AFTER intake1 =====
+                if (stateTimer.seconds() > 1.25) {
+                    intake.intakeOff();
                     setState(8);
                 }
                 break;
@@ -156,20 +153,20 @@ public class BlueShootFarFlower extends OpMode {
             // ---------- at shoot2 ----------
             case 9: // arrived -> command 1
                 if (!follower.isBusy()) {
-                    // ===== COMMAND 1 AFTER shoot2 =====
                     setState(10);
                 }
                 break;
 
             case 10: // wait, then command 2
-                if (stateTimer.seconds() > 0.5) {
-                    // ===== COMMAND 2 AFTER shoot2 =====
+                if (stateTimer.seconds() > 1) {
+                    intake.transferOn();
                     setState(11);
                 }
                 break;
 
             case 11: // wait, then drive path 6
-                if (stateTimer.seconds() > 0.5) {
+                if (stateTimer.seconds() > 1.25) {
+                    intake.intakeOff();
                     follower.follow(path6());
                     setState(12);
                 }

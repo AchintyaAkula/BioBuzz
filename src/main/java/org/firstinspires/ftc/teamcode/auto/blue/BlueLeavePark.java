@@ -10,6 +10,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
 import org.firstinspires.ftc.teamcode.pedro.Constants;
+import org.firstinspires.ftc.teamcode.util.PoseStorage;
 
 @Autonomous(name = "BlueLeavePark", group = "Blue")
 public class BlueLeavePark extends OpMode {
@@ -45,6 +46,7 @@ public class BlueLeavePark extends OpMode {
     @Override
     public void loop() {
         follower.update();
+        PoseStorage.save(follower.pose()); // handoff to teleop: where the robot really is
 
         switch (state) {
             case 0:

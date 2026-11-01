@@ -1,10 +1,13 @@
 package org.firstinspires.ftc.teamcode.constants;
 
 public class ShooterConstants {
-    public static final String MOTOR_NAME_ONE = "shooter1";
-    public static final String MOTOR_NAME_TWO = "shooter2";
-    public static double TICKS_PER_REV = 28;
-    public static double RED_X = 0, RED_Y = 0, BLUE_X = 144, BLUE_Y = 0;
-    public static double RED_GOAL_X = 58, RED_GOAL_Y = 72;
-    public static double BLUE_GOAL_X = 84, BLUE_GOAL_Y = 72;
+    // Shooter (top roller) motors, names from IntakeTest2
+    public static final String MOTOR_NAME_ONE = "intakeFrontT";
+    public static final String MOTOR_NAME_TWO = "intakeBackT";
+
+    // Goal middle. Two tops sit at GOAL_Y +/- TOP_OFFSET_Y. GOAL_Y is also the y split for picking a top.
+    public static double RED_GOAL_X = 60;
+    public static double BLUE_GOAL_X = 84;
+    public static final double GOAL_Y = 72;
+    public static double TOP_OFFSET_Y = 10;
 }

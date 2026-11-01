@@ -5,14 +5,15 @@ import com.pedropathing.math.Pose;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 
-import org.firstinspires.ftc.teamcode.constants.ShooterConstants;
 import org.firstinspires.ftc.teamcode.constants.TurretConstants;
+import org.firstinspires.ftc.teamcode.subsystems.shooter.ShooterTarget;
 
 public class TurretSubsystem {
     private final HardwareMap hardwareMap;
     private Servo turret;
     private Follower follower;
     private boolean isRedAlliance;
+    private Boolean lowYOverride = null;
 
     public TurretSubsystem(HardwareMap hardwareMap) {
         this.hardwareMap = hardwareMap;
@@ -36,11 +37,18 @@ public class TurretSubsystem {
         setAngle(0);
     }
 
-    public void aimTurret() {
-        Pose pose = follower.pose();
+    /** true = low-y top, false = high-y top, null = choose from robot y. */
+    public void setLowYOverride(Boolean lowY) {
+        lowYOverride = lowY;
+    }
 
-        double goalX = isRedAlliance ? ShooterConstants.RED_GOAL_X : ShooterConstants.BLUE_GOAL_X;
-        double goalY = isRedAlliance ? ShooterConstants.RED_GOAL_Y : ShooterConstants.BLUE_GOAL_Y;
+    public void aimTurret() {
+        boolean lowY = ShooterTarget.lowY(follower.pose(), lowYOverride);
+        aimAt(ShooterTarget.x(isRedAlliance), ShooterTarget.y(lowY));
+    }
+
+    public void aimAt(double goalX, double goalY) {
+        Pose pose = follower.pose();
 
         double fieldAngle = Math.toDegrees(Math.atan2(goalY - pose.y(), goalX - pose.x()));
         double relative = fieldAngle - Math.toDegrees(pose.heading()) + TurretConstants.ANGLE_OFFSET_DEGREES;

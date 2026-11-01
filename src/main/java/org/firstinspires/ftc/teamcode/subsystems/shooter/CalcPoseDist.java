@@ -2,23 +2,17 @@ package org.firstinspires.ftc.teamcode.subsystems.shooter;
 
 import com.pedropathing.follower.Follower;
 import com.pedropathing.math.Pose;
-import org.firstinspires.ftc.teamcode.constants.ShooterConstants;
+
 public class CalcPoseDist {
 
+    /** Distance to the top picked from robot y. */
     public static double calcDistance(Follower follower, boolean isRedAlliance) {
+        return calcDistance(follower, isRedAlliance, null);
+    }
+
+    /** @param lowYOverride true = low-y top, false = high-y top, null = choose from robot y. */
+    public static double calcDistance(Follower follower, boolean isRedAlliance, Boolean lowYOverride) {
         Pose pose = follower.pose();
-
-        double goalX;
-        double goalY;
-
-        if (isRedAlliance) {
-            goalX = ShooterConstants.RED_GOAL_X;
-            goalY = ShooterConstants.RED_GOAL_Y;
-        } else {
-            goalX = ShooterConstants.BLUE_GOAL_X;
-            goalY = ShooterConstants.BLUE_GOAL_Y;
-        }
-
-        return Math.hypot(goalX - pose.x(), goalY - pose.y());
+        return ShooterTarget.distance(pose, isRedAlliance, ShooterTarget.lowY(pose, lowYOverride));
     }
 }

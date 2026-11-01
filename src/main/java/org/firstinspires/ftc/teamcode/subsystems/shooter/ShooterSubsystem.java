@@ -1,24 +1,23 @@
 package org.firstinspires.ftc.teamcode.subsystems.shooter;
 
-import static org.firstinspires.ftc.teamcode.subsystems.shooter.CalcPoseDist.calcDistance;
-
 import com.pedropathing.follower.Follower;
-import com.pedropathing.math.Pose;
+import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
-import com.qualcomm.robotcore.hardware.DcMotorEx;
 import org.firstinspires.ftc.teamcode.constants.ShooterConstants;
-import org.firstinspires.ftc.teamcode.pedro.Constants;
 
 public class ShooterSubsystem {
     private final Telemetry telemetry;
     private final HardwareMap hardwareMap;
 
-    DcMotorEx shooter1;
-    DcMotorEx shooter2;
-    boolean isRedAlliance;
-    Follower follower;
+    private DcMotor shooter1;
+    private DcMotor shooter2;
+    private boolean isRedAlliance;
+    private Follower follower;
+    /** true = low-y top, false = high-y top, null = choose from robot y. */
+    private Boolean lowYOverride = null;
+
     public ShooterSubsystem(HardwareMap hardwareMap, Telemetry telemetry) {
         this.hardwareMap = hardwareMap;
         this.telemetry = telemetry;
@@ -27,29 +26,29 @@ public class ShooterSubsystem {
     public void initShooter(boolean isRedAlliance, Follower follower) {
         this.isRedAlliance = isRedAlliance;
         this.follower = follower;
-        
-        shooter1 = hardwareMap.get(DcMotorEx.class, ShooterConstants.MOTOR_NAME_ONE);
-        shooter2 = hardwareMap.get(DcMotorEx.class, ShooterConstants.MOTOR_NAME_TWO);
+
+        shooter1 = hardwareMap.get(DcMotor.class, ShooterConstants.MOTOR_NAME_ONE);
+        shooter2 = hardwareMap.get(DcMotor.class, ShooterConstants.MOTOR_NAME_TWO);
     }
 
-    public void setStartPose() {
-    if (isRedAlliance) {
-            follower.setPose(new Pose(ShooterConstants.RED_X, ShooterConstants.RED_Y, Math.toRadians(90)));
-        } else {
-            follower.setPose(new Pose(ShooterConstants.BLUE_X, ShooterConstants.BLUE_Y, Math.toRadians(90)));
-        }
+    public void setLowYOverride(Boolean lowY) {
+        lowYOverride = lowY;
     }
-    
-    public void runShooter() {
-        double rpm = ShooterInterpolation.returnRPM(calcDistance(follower, isRedAlliance));
-        shooter1.setVelocity(rpm * ShooterConstants.TICKS_PER_REV / 60.0);
-        shooter2.setVelocity(rpm * ShooterConstants.TICKS_PER_REV / 60.0);
+
+    /**
+     * Sets power from the LUT using distance to the target top. The target is picked again on every
+     * call from the current robot pose, so call this every loop. Returns the power set.
+     */
+    public double runShooter() {
+        double power = ShooterInterpolation.returnRPM(
+                CalcPoseDist.calcDistance(follower, isRedAlliance, lowYOverride)); // LUT output is motor power
+        shooter1.setPower(power);
+        shooter2.setPower(power);
+        return power;
     }
 
     public void stopShooter() {
-        shooter1.setVelocity(0);
-        shooter2.setVelocity(0);
+        shooter1.setPower(0);
+        shooter2.setPower(0);
     }
-
-
 }
