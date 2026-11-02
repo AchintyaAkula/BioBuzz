@@ -12,23 +12,23 @@ import org.firstinspires.ftc.teamcode.pedro.procedures.Tests;
 
 public class Tuners {
     @Tuner
-    public Procedure mecanumTuner() {
+    public static Procedure mecanumTuner() {
         return new MecanumTuner();
     }
 
     @Tuner
-    public Procedure pinpointTuner() {
+    public static Procedure pinpointTuner() {
         return new PinpointTuner();
     }
 
-    public Procedure foresightTuner() {
+    public static Procedure foresightTuner() {
         return new ForesightTuner(
                 (hwM) -> new PinpointLocalizer(hwM, Constants.pinpointCfg),
                 (hwM) -> new Mecanum(hwM, Constants.drivetrainCfg));
     }
 
     @Tuner
-    public Procedure tests() {
+    public static Procedure tests() {
         return new Tests(
                 (hwM) -> new Mecanum(hwM, Constants.drivetrainCfg),
                 (hwM) -> new PinpointLocalizer(hwM, Constants.pinpointCfg),

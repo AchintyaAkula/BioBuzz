@@ -32,14 +32,14 @@ public class Configuration {
     public static final MotorConfig BACK_INTAKE_MOTOR = new MotorConfig("b_in", Direction.FORWARD);
 
     // Servo Hub
-    public static final ServoConfig TRANSFER_SERVO_NAME = new ServoConfig("transfer");
+    public static final ServoConfig TRANSFER_SERVO = new ServoConfig("transfer");
 
-    public static final ServoConfig FRONT_INTAKE_SERVO_NAME = new ServoConfig("f_intake");
-    public static final ServoConfig BACK_INTAKE_SERVO_NAME = new ServoConfig("b_intake");
+    public static final ServoConfig FRONT_INTAKE_SERVO = new ServoConfig("f_intake");
+    public static final ServoConfig BACK_INTAKE_SERVO = new ServoConfig("b_intake");
 
     public static class MotorConfig {
-        public final String name;
-        public final Direction direction;
+        public String name;
+        public Direction direction;
 
         public MotorConfig(String name, Direction dir) {
             this.name = name;
@@ -55,7 +55,7 @@ public class Configuration {
     }
 
     public static class ServoConfig {
-        public final String name;
+        public String name;
 
         public ServoConfig(String name) {
             this.name = name;
