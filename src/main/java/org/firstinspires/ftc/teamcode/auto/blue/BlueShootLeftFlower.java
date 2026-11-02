@@ -1,3 +1,4 @@
+/*
 package org.firstinspires.ftc.teamcode.auto.blue;
 
 import static com.pedropathing.api.Paths.*;
@@ -217,4 +218,4 @@ public class BlueShootLeftFlower extends OpMode {
     public Path path5() {
         return Paths.line(endshoottwo, point5).tangent();
     }
-}
+}*/

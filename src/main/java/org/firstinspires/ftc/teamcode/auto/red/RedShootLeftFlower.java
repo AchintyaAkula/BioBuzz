@@ -1,3 +1,4 @@
+/*
 package org.firstinspires.ftc.teamcode.auto.red;
 
 import static com.pedropathing.api.Paths.*;
@@ -216,4 +217,4 @@ public class RedShootLeftFlower extends OpMode {
     public Path path5() {
         return Paths.line(endshoottwo, point5).tangent();
     }
-}
+}*/
