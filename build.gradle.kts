@@ -4,10 +4,6 @@ plugins {
     id("com.diffplug.spotless") version "8.10.4"
 }
 
-ftc {
-    kotlin()
-}
-
 dependencies {
     implementation("dev.frozenmilk.sinister:Sloth:0.3.2")
 
@@ -25,44 +21,34 @@ dependencies {
     //noinspection GradleDependency
     implementation("androidx.appcompat:appcompat:1.2.0")
 
-    implementation("com.pedropathing:revhub:3.0.1")
-    implementation("com.pedropathing:tuning:1.0.1")
+    implementation("com.pedropathing:revhub:3.0.2")
+    implementation("com.pedropathing:tuning:1.0.3")
 
     implementation("com.acmerobotics.slothboard:dashboard:0.3.2+0.6.0")
 
-    implementation("org.solverslib:core:0.3.5")
-
-    // for interpolation
-    implementation("org.apache.commons:commons-math3:3.6.1")
+    implementation("org.solverslib:core:0.3.6")
 }
 
 spotless {
-    kotlin {
-        target("src/main/**/*.kt")
-        targetExclude("**/build/**/*.kt", "**/.gradle/**/*.kt")
-
-        ktlint()
-            .editorConfigOverride(kotlinFormattingConfiguration)
-    }
     kotlinGradle {
         target("**/*.gradle.kts")
 
         ktlint()
-            .editorConfigOverride(kotlinFormattingConfiguration)
+            .editorConfigOverride(gradleFormatConfig)
     }
     java {
         target("src/main/java/**/*.java", "src/test/java/**/*.java")
 
         palantirJavaFormat()
         removeUnusedImports()
-        importOrder("com", "org", "java", "javax")
+        importOrder("java", "javax", "jakarta")
         trimTrailingWhitespace()
         endWithNewline()
         formatAnnotations()
     }
 }
 
-val kotlinFormattingConfiguration: Map<String, String> = mapOf(
+val gradleFormatConfig: Map<String, String> = mapOf(
     "kotlin_code_style" to "official",
     "indent_size" to "4",
     "max_line_length" to "120",

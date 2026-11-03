@@ -3,6 +3,9 @@ package org.firstinspires.ftc.teamcode.pedro.procedures;
 import static com.pedropathing.api.Paths.curve;
 import static com.pedropathing.api.Paths.line;
 
+import java.util.function.Function;
+import java.util.function.Supplier;
+
 import com.pedropathing.algorithm.Algorithm;
 import com.pedropathing.drivetrain.DrivePowers;
 import com.pedropathing.drivetrain.Drivetrain;
@@ -18,9 +21,6 @@ import com.pedropathing.tuning.autotune.TuningOpMode;
 import com.pedropathing.utils.Angle;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
-
-import java.util.function.Function;
-import java.util.function.Supplier;
 
 public class Tests extends Procedure {
     enum Test {
@@ -163,7 +163,6 @@ class TestsLine extends TuningOpMode<Boolean> {
         Follower follower = followerFunction.apply(hardwareMap);
         follower.setPose(Pose.zero());
 
-        double distance = 48;
         boolean forward = true;
 
         Path path1 = line(Pose.zero(), new Pose(distance, 0, 0)).constant(0);
@@ -205,7 +204,6 @@ class TestsCurve extends TuningOpMode<Boolean> {
         Follower follower = followerFunction.apply(hardwareMap);
         follower.setPose(Pose.zero());
 
-        double distance = 48;
         boolean forward = true;
 
         Path path1 = curve(Pose.zero(), new Pose(distance + 0, 0), new Pose(distance, distance))
@@ -252,7 +250,6 @@ class TestsInterpolation extends TuningOpMode<Boolean> {
         Follower follower = followerFunction.apply(hardwareMap);
         follower.setPose(Pose.zero());
 
-        double distance = 48;
         boolean forward = true;
 
         Path path1 = curve(Pose.zero(), new Pose(distance + 0, 0), new Pose(distance, distance))
