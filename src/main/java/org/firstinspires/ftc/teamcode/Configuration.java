@@ -13,8 +13,8 @@ public class Configuration {
     public static final MotorConfig FRONT_LEFT_MOTOR = new MotorConfig("fl", Direction.FORWARD);
     public static final MotorConfig BACK_LEFT_MOTOR = new MotorConfig("bl", Direction.FORWARD);
 
-    public static final MotorConfig FRONT_FLYWHEEL_MOTOR = new MotorConfig("f_fw", Direction.FORWARD);
-    public static final MotorConfig BACK_FLYWHEEL_MOTOR = new MotorConfig("b_fw", Direction.FORWARD);
+    public static final MotorConfig FRONT_FLYWHEEL_MOTOR = new MotorConfig("fwf", Direction.REVERSE);
+    public static final MotorConfig BACK_FLYWHEEL_MOTOR = new MotorConfig("fwb", Direction.REVERSE);
 
     public static final PinpointConfig PINPOINT = new PinpointConfig(
             "pinpoint",
@@ -28,14 +28,14 @@ public class Configuration {
     public static final MotorConfig FRONT_RIGHT_MOTOR = new MotorConfig("fr", Direction.REVERSE);
     public static final MotorConfig BACK_RIGHT_MOTOR = new MotorConfig("br", Direction.REVERSE);
 
-    public static final MotorConfig FRONT_INTAKE_MOTOR = new MotorConfig("f_in", Direction.FORWARD);
-    public static final MotorConfig BACK_INTAKE_MOTOR = new MotorConfig("b_in", Direction.FORWARD);
+    public static final MotorConfig FRONT_INTAKE_MOTOR = new MotorConfig("fi", Direction.REVERSE);
+    public static final MotorConfig BACK_INTAKE_MOTOR = new MotorConfig("bi", Direction.FORWARD);
 
     // Servo Hub
-    public static final ServoConfig TRANSFER_SERVO = new ServoConfig("transfer");
+    public static final ServoConfig TRANSFER_SERVO = new ServoConfig("t");
 
-    public static final ServoConfig FRONT_INTAKE_SERVO = new ServoConfig("f_intake");
-    public static final ServoConfig BACK_INTAKE_SERVO = new ServoConfig("b_intake");
+    public static final ServoConfig FRONT_INTAKE_SERVO = new ServoConfig("fis");
+    public static final ServoConfig BACK_INTAKE_SERVO = new ServoConfig("bis");
 
     public static class MotorConfig {
         public String name;

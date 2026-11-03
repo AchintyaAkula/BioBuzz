@@ -6,10 +6,10 @@ import com.qualcomm.robotcore.hardware.Servo;
 import org.firstinspires.ftc.teamcode.Configuration;
 
 class IntakeClutch {
-    private static final double FRONT_INTAKE_ENGAGE_POS = 0.93;
+    private static final double FRONT_INTAKE_ENGAGE_POS = 0.94;
     private static final double FRONT_INTAKE_RELEASE_POS = 0.81;
-    private static final double BACK_INTAKE_ENGAGE_POS = 0.93;
-    private static final double BACK_INTAKE_RELEASE_POS = 0.81;
+    private static final double BACK_INTAKE_ENGAGE_POS = 0.79;
+    private static final double BACK_INTAKE_RELEASE_POS = 0.98;
 
     private Servo frontIntakeClutch;
     private Servo backIntakeClutch;
@@ -30,8 +30,8 @@ class IntakeClutch {
 }
 
 class TransferClutch {
-    private static final double TRANSFER_ENGAGE_POS = 0.0;
-    private static final double TRANSFER_RELEASE_POS = 0.0;
+    private static final double TRANSFER_ENGAGE_POS = 0.1;
+    private static final double TRANSFER_RELEASE_POS = 0.7;
 
     private Servo transferServo;
 

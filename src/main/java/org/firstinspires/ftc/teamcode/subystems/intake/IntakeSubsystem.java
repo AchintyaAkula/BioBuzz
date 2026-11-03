@@ -15,8 +15,8 @@ public class IntakeSubsystem {
     }
 
     private static final double FAST_INTAKE_POWER = 1.0;
-    private static final double SLOW_INTAKE_POWER = 0.8;
-    private static final double PASSIVE_INTAKE_POWER = -0.5;
+    private static final double SLOW_INTAKE_POWER = 0.7;
+    private static final double PASSIVE_INTAKE_POWER = -0.55;
     private static final double INTAKE_STALL_CURRENT_MA = 3000.0;
 
     private final IntakeClutch clutch = new IntakeClutch();
@@ -43,10 +43,14 @@ public class IntakeSubsystem {
             case FRONT:
                 frontIntakeMotor.setPower(FAST_INTAKE_POWER);
                 backIntakeMotor.setPower(PASSIVE_INTAKE_POWER);
+                clutch.engageFront();
+                transfer.disengage();
                 break;
             case BACK:
                 frontIntakeMotor.setPower(PASSIVE_INTAKE_POWER);
                 backIntakeMotor.setPower(FAST_INTAKE_POWER);
+                clutch.engageBack();
+                transfer.disengage();
                 break;
             case TRANSFER:
                 transfer.engage();
@@ -61,6 +65,7 @@ public class IntakeSubsystem {
             case STOPPED:
                 frontIntakeMotor.setPower(0.0);
                 backIntakeMotor.setPower(0.0);
+                transfer.disengage();
                 break;
         }
         this.state = state;
