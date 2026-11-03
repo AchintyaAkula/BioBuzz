@@ -1,5 +1,6 @@
-package org.firstinspires.ftc.teamcode.subystems.intake;
+package org.firstinspires.ftc.teamcode.subsystems.intake;
 
+import com.pedropathing.follower.Follower;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
@@ -18,6 +19,7 @@ public class IntakeSubsystem {
     private static final double SLOW_INTAKE_POWER = 0.7;
     private static final double PASSIVE_INTAKE_POWER = -0.55;
     private static final double INTAKE_STALL_CURRENT_MA = 3000.0;
+    private static final double VELOCITY_DEADBAND = 2; // in/s, below this keep the last side
 
     private final IntakeClutch clutch = new IntakeClutch();
     private final TransferClutch transfer = new TransferClutch();
@@ -25,7 +27,20 @@ public class IntakeSubsystem {
     private DcMotorEx frontIntakeMotor;
     private DcMotorEx backIntakeMotor;
 
-    private IntakeState state;
+    private Follower follower; // only needed for intakeOn() (side picked from velocity)
+    private boolean autoSide = false;
+    private boolean frontActive = true;
+
+    private IntakeState state = IntakeState.STOPPED;
+
+    /** Use together with {@link #init(HardwareMap)}. */
+    public IntakeSubsystem() {}
+
+    /** Init immediately; the follower lets {@link #intakeOn()} pick the side from robot velocity. */
+    public IntakeSubsystem(HardwareMap hwMap, Follower follower) {
+        this.follower = follower;
+        init(hwMap);
+    }
 
     public void init(HardwareMap hwMap) {
         frontIntakeMotor = Configuration.FRONT_INTAKE_MOTOR.createMotor(hwMap);
@@ -39,6 +54,60 @@ public class IntakeSubsystem {
     }
 
     public void setState(IntakeState state) {
+        autoSide = false;
+        applyState(state);
+    }
+
+    public IntakeState getState() {
+        return state;
+    }
+
+    /** Intake on, side chosen from the robot's forward/backward velocity. Needs the follower constructor. */
+    public void intakeOn() {
+        autoSide = true;
+        pickSide();
+        applyState(frontActive ? IntakeState.FRONT : IntakeState.BACK);
+    }
+
+    public void transferOn() {
+        setState(IntakeState.TRANSFER);
+    }
+
+    public void intakeOff() {
+        setState(IntakeState.STOPPED);
+    }
+
+    /** true if the front side is the one running in intakeOn. */
+    public boolean isFrontActive() {
+        return frontActive;
+    }
+
+    public void update() {
+        if (autoSide && (state == IntakeState.FRONT || state == IntakeState.BACK)) {
+            pickSide();
+            IntakeState wanted = frontActive ? IntakeState.FRONT : IntakeState.BACK;
+            if (wanted != state) applyState(wanted);
+        }
+
+        if (state == IntakeState.FRONT) {
+            if (backIntakeMotor.isOverCurrent()) {
+                backIntakeMotor.setPower(0);
+            }
+        } else if (state == IntakeState.BACK) {
+            if (frontIntakeMotor.isOverCurrent()) {
+                frontIntakeMotor.setPower(0);
+            }
+        }
+    }
+
+    private void pickSide() {
+        if (follower == null) return;
+        double forward = follower.twist().vx; // robot-relative, + = forward
+        if (forward > VELOCITY_DEADBAND) frontActive = true;
+        else if (forward < -VELOCITY_DEADBAND) frontActive = false;
+    }
+
+    private void applyState(IntakeState state) {
         switch (state) {
             case FRONT:
                 frontIntakeMotor.setPower(FAST_INTAKE_POWER);
@@ -69,17 +138,5 @@ public class IntakeSubsystem {
                 break;
         }
         this.state = state;
-    }
-
-    public void update() {
-        if (state == IntakeState.FRONT) {
-            if (backIntakeMotor.isOverCurrent()) {
-                backIntakeMotor.setPower(0);
-            }
-        } else if (state == IntakeState.BACK) {
-            if (frontIntakeMotor.isOverCurrent()) {
-                frontIntakeMotor.setPower(0);
-            }
-        }
     }
 }

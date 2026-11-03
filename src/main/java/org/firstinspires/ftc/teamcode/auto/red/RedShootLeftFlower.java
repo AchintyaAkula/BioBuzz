@@ -14,7 +14,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.pedro.Constants;
 import org.firstinspires.ftc.teamcode.util.PoseStorage;
-import org.firstinspires.ftc.teamcode.subsystems.IntakeSubsystem;
+import org.firstinspires.ftc.teamcode.subsystems.intake.IntakeSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.shooter.ShooterSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.shooter.turret.TurretSubsystem;
 
@@ -44,7 +44,7 @@ public class RedShootLeftFlower extends OpMode {
     @Override
     public void init() {
 
-        follower = Constants.INSTANCE.create(hardwareMap);
+        follower = Constants.create(hardwareMap);
         follower.setPose(start);
         follower.update();
 

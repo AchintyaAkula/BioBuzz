@@ -8,6 +8,7 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
+import org.firstinspires.ftc.teamcode.Configuration;
 
 @Config
 @TeleOp(name = "Intake thingy")
@@ -28,13 +29,13 @@ public class IntakeT extends OpMode {
 
     @Override
     public void init() {
-        motor1 = hardwareMap.get(DcMotorEx.class, "l_it");
-        motor2 = hardwareMap.get(DcMotorEx.class, "r_it");
+        motor1 = Configuration.FRONT_INTAKE_MOTOR.createMotor(hardwareMap);
+        motor2 = Configuration.BACK_INTAKE_MOTOR.createMotor(hardwareMap);
 
-        fw1 = hardwareMap.get(DcMotor.class, "l_fw");
-        fw2 = hardwareMap.get(DcMotor.class, "r_fw");
+        fw1 = Configuration.FRONT_FLYWHEEL_MOTOR.createMotor(hardwareMap);
+        fw2 = Configuration.BACK_FLYWHEEL_MOTOR.createMotor(hardwareMap);
 
-        transfer = hardwareMap.get(Servo.class, "transfer");
+        transfer = Configuration.TRANSFER_SERVO.createServo(hardwareMap);
     }
 
     @Override

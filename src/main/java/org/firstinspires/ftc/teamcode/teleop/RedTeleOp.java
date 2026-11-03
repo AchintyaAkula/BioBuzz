@@ -6,7 +6,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 
 import org.firstinspires.ftc.teamcode.Configuration;
-import org.firstinspires.ftc.teamcode.subystems.intake.IntakeSubsystem;
+import org.firstinspires.ftc.teamcode.subsystems.intake.IntakeSubsystem;
 
 @Config
 @TeleOp(name = "BIG TEST")

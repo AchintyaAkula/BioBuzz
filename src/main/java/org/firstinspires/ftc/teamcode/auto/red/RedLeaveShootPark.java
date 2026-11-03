@@ -4,7 +4,7 @@ import static com.pedropathing.api.Paths.*;
 
 import org.firstinspires.ftc.teamcode.subsystems.shooter.turret.TurretSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.shooter.ShooterSubsystem;
-import org.firstinspires.ftc.teamcode.subsystems.IntakeSubsystem;
+import org.firstinspires.ftc.teamcode.subsystems.intake.IntakeSubsystem;
 
 
 import com.pedropathing.api.PoseFactory;
@@ -52,7 +52,7 @@ public class RedLeaveShootPark extends OpMode {
 
     @Override
     public void init() {
-        follower = Constants.INSTANCE.create(hardwareMap);
+        follower = Constants.create(hardwareMap);
         follower.setPose(start);
         turret = new TurretSubsystem(hardwareMap);
         shooter = new ShooterSubsystem(hardwareMap, telemetry);

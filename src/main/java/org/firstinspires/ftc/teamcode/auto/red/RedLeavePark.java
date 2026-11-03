@@ -34,7 +34,7 @@ public class RedLeavePark extends OpMode {
 
     @Override
     public void init() {
-        follower = Constants.INSTANCE.create(hardwareMap);
+        follower = Constants.create(hardwareMap);
         follower.setPose(start);
     }
 

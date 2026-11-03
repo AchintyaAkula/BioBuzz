@@ -6,6 +6,8 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Servo;
 
+import org.firstinspires.ftc.teamcode.Configuration;
+
 @Config
 @TeleOp(name = "IntakeTest", group = "Test")
 public class IntakeTest2 extends OpMode {
@@ -14,7 +16,6 @@ public class IntakeTest2 extends OpMode {
     public static double slow = 0.8;
     public static double swapPeriod = 0.2; // seconds
 
-    public static String TRANSFER_NAME = "idk";
     public static double open = 0.4;
     public static double close = 1.0;
 
@@ -28,13 +29,13 @@ public class IntakeTest2 extends OpMode {
 
     @Override
     public void init() {
-        shooterBack = hardwareMap.get(DcMotor.class, "intakeBackT");
-        shooterFront = hardwareMap.get(DcMotor.class, "intakeFrontT");
+        shooterBack = Configuration.BACK_FLYWHEEL_MOTOR.createMotor(hardwareMap);
+        shooterFront = Configuration.FRONT_FLYWHEEL_MOTOR.createMotor(hardwareMap);
 
-        intakeBack = hardwareMap.get(DcMotor.class, "intakeBackB");
-        intakeFront = hardwareMap.get(DcMotor.class, "intakeFrontB");
+        intakeBack = Configuration.BACK_INTAKE_MOTOR.createMotor(hardwareMap);
+        intakeFront = Configuration.FRONT_INTAKE_MOTOR.createMotor(hardwareMap);
 
-        transfer = hardwareMap.get(Servo.class, TRANSFER_NAME);
+        transfer = Configuration.TRANSFER_SERVO.createServo(hardwareMap);
     }
 
     private void setPower(double front, double back, double shooter) {

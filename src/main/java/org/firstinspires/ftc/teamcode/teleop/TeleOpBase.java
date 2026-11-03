@@ -5,7 +5,7 @@ import com.pedropathing.math.Pose;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
 import org.firstinspires.ftc.teamcode.pedro.Constants;
-import org.firstinspires.ftc.teamcode.subsystems.IntakeSubsystem;
+import org.firstinspires.ftc.teamcode.subsystems.intake.IntakeSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.drivetrain.DrivetrainSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.shooter.CalcPoseDist;
 import org.firstinspires.ftc.teamcode.subsystems.shooter.ShooterSubsystem;
@@ -44,7 +44,7 @@ public abstract class TeleOpBase extends OpMode {
 
     @Override
     public void init() {
-        follower = Constants.INSTANCE.create(hardwareMap);
+        follower = Constants.create(hardwareMap);
         // where auto actually ended, or (72, 72, 90deg) if no auto ran
         follower.setPose(PoseStorage.take());
 
