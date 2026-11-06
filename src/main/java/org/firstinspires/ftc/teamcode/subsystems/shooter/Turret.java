@@ -2,7 +2,6 @@ package org.firstinspires.ftc.teamcode.subsystems.shooter;
 
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
-
 import org.firstinspires.ftc.teamcode.Configuration;
 
 public class Turret {
@@ -17,12 +16,12 @@ public class Turret {
     }
 
     public void update() {
-        turretServo.setPosition(
-                TURRET_0_POS + (angDegNormalized * (360.0 / TURRET_ROM))
-        );
+        turretServo.setPosition(TURRET_0_POS + (angDegNormalized * (360.0 / TURRET_ROM)));
     }
 
-    public void setAngle(double angDegNormalized) { this.angDegNormalized = angDegNormalized; }
+    public void setAngle(double angDegNormalized) {
+        this.angDegNormalized = angDegNormalized;
+    }
 
     public static double normalize(double angDeg) {
         if (angDeg >= 180.0) {

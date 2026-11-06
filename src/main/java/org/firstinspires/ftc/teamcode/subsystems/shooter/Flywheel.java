@@ -23,6 +23,11 @@ public class Flywheel {
         }
     }
 
-    public void togglePower() { on = !on; }
-    public void setPower(double pow) { this.pow = pow; }
+    public void togglePower() {
+        on = !on;
+    }
+
+    public void setPower(double pow) {
+        this.pow = pow;
+    }
 }

@@ -4,7 +4,6 @@ import com.acmerobotics.dashboard.config.Config;
 import com.pedropathing.ivy.Scheduler;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-
 import org.firstinspires.ftc.teamcode.subsystems.intake.Intake;
 import org.firstinspires.ftc.teamcode.subsystems.shooter.Flywheel;
 
@@ -45,7 +44,6 @@ public class IntakeShooterTest extends OpMode {
         } else {
             intake.stop().schedule();
         }
-
 
         flywheel.update();
         intake.update();

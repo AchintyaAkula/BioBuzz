@@ -5,7 +5,6 @@ import com.pedropathing.ivy.commands.Commands;
 import com.pedropathing.ivy.groups.Groups;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
-
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 import org.firstinspires.ftc.teamcode.Configuration;
 
@@ -55,53 +54,51 @@ public class Intake {
 
     public Command frontIntake() {
         state = IntakeState.FRONT;
-        return Groups.sequential(
-                transfer.disengage(),
-                clutch.engageFront(),
-                Commands.instant(() -> {
+        return Groups.sequential(transfer.disengage(), clutch.engageFront(), Commands.instant(() -> {
                     frontIntakeMotor.setPower(FAST_INTAKE_POWER);
                     backIntakeMotor.setPower(PASSIVE_INTAKE_POWER);
-                })
-        ).requiring(this).setPriority(0);
+                }))
+                .requiring(this)
+                .setPriority(0);
     }
+
     public Command backIntake() {
         state = IntakeState.BACK;
-        return Groups.sequential(
-                transfer.disengage(),
-                clutch.engageBack(),
-                Commands.instant(() -> {
+        return Groups.sequential(transfer.disengage(), clutch.engageBack(), Commands.instant(() -> {
                     frontIntakeMotor.setPower(PASSIVE_INTAKE_POWER);
                     backIntakeMotor.setPower(FAST_INTAKE_POWER);
-                })
-        ).requiring(this).setPriority(0);
+                }))
+                .requiring(this)
+                .setPriority(0);
     }
+
     public Command transfer() {
         state = IntakeState.TRANSFER;
         return Groups.sequential(
-                transfer.engage(),
-                Commands.waitMs(200),
-                Commands.instant(() -> {
-                    if (this.state == IntakeState.BACK) {
-                        frontIntakeMotor.setPower(SLOW_INTAKE_POWER);
-                        backIntakeMotor.setPower(FAST_INTAKE_POWER);
-                    } else {
-                        frontIntakeMotor.setPower(FAST_INTAKE_POWER);
-                        backIntakeMotor.setPower(SLOW_INTAKE_POWER);
-                    }
-                }),
-                Commands.waitMs(400),
-                stop()
-        ).requiring(this).setPriority(1);
-    }
-    public Command stop() {
-        state = IntakeState.STOPPED;
-        return Groups.sequential(
-                transfer.disengage(),
-                Commands.instant(() -> {
-                    frontIntakeMotor.setPower(0);
-                    backIntakeMotor.setPower(0);
-                })
-        ).requiring(this).setPriority(-1);
+                        transfer.engage(),
+                        Commands.waitMs(200),
+                        Commands.instant(() -> {
+                            if (this.state == IntakeState.BACK) {
+                                frontIntakeMotor.setPower(SLOW_INTAKE_POWER);
+                                backIntakeMotor.setPower(FAST_INTAKE_POWER);
+                            } else {
+                                frontIntakeMotor.setPower(FAST_INTAKE_POWER);
+                                backIntakeMotor.setPower(SLOW_INTAKE_POWER);
+                            }
+                        }),
+                        Commands.waitMs(400),
+                        stop())
+                .requiring(this)
+                .setPriority(1);
     }
 
+    public Command stop() {
+        state = IntakeState.STOPPED;
+        return Groups.sequential(transfer.disengage(), Commands.instant(() -> {
+                    frontIntakeMotor.setPower(0);
+                    backIntakeMotor.setPower(0);
+                }))
+                .requiring(this)
+                .setPriority(-1);
+    }
 }
