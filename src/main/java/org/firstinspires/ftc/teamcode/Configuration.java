@@ -60,15 +60,21 @@ public class Configuration {
 
     public static class ServoConfig {
         public String name;
+        public PwmControl.PwmRange range;
+
+        public ServoConfig(String name, PwmControl.PwmRange range) {
+            this.name = name;
+            this.range = range;
+        }
 
         public ServoConfig(String name) {
-            this.name = name;
+            this(name, new PwmControl.PwmRange(500, 2500));
         }
 
         public Servo createServo(HardwareMap hwMap) {
-            // Axon servos require explicit PWM range; default FTC range clips positions.
             ServoImplEx s = hwMap.get(ServoImplEx.class, name);
-            s.setPwmRange(new PwmControl.PwmRange(500, 2500));
+            s.setPwmRange(range);
+
             return s;
         }
     }
