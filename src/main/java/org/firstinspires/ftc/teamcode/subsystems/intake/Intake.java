@@ -1,7 +1,6 @@
 package org.firstinspires.ftc.teamcode.subsystems.intake;
 
 import com.pedropathing.ivy.Command;
-import com.pedropathing.ivy.behaviors.BlockedBehavior;
 import com.pedropathing.ivy.commands.Commands;
 import com.pedropathing.ivy.groups.Groups;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
@@ -10,7 +9,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 import org.firstinspires.ftc.teamcode.Configuration;
 
-public class IntakeSubsystem {
+public class Intake {
     public enum IntakeState {
         FRONT,
         BACK,
@@ -80,7 +79,7 @@ public class IntakeSubsystem {
         state = IntakeState.TRANSFER;
         return Groups.sequential(
                 transfer.engage(),
-                Commands.waitMs(400),
+                Commands.waitMs(200),
                 Commands.instant(() -> {
                     if (this.state == IntakeState.BACK) {
                         frontIntakeMotor.setPower(SLOW_INTAKE_POWER);
@@ -89,7 +88,9 @@ public class IntakeSubsystem {
                         frontIntakeMotor.setPower(FAST_INTAKE_POWER);
                         backIntakeMotor.setPower(SLOW_INTAKE_POWER);
                     }
-                })
+                }),
+                Commands.waitMs(400),
+                stop()
         ).requiring(this).setPriority(1);
     }
     public Command stop() {
