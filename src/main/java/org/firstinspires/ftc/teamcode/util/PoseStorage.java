@@ -3,13 +3,13 @@ package org.firstinspires.ftc.teamcode.util;
 import com.pedropathing.math.Pose;
 
 /**
- * Hands the robot pose from autonomous to teleop. Static fields live as long as the robot
- * controller app, so the pose survives switching opmodes.
- * Autos save the localized pose every loop, so this is where the robot actually was when
- * auto stopped (not the last path target).
+ * Hands the robot pose from auto to teleop. Static fields survive opmode switches as long as the
+ * robot controller app is running. Auto saves the localized pose every loop; teleop reads it once
+ * in init() so it starts tracking from where auto actually stopped.
  */
 public final class PoseStorage {
-    /** Teleop start pose when no auto ran. */
+
+    // Used when no auto ran before teleop (e.g., direct teleop start at practice).
     public static final Pose DEFAULT_POSE = new Pose(72, 72, Math.toRadians(90));
 
     private static Pose autoEndPose = null;
@@ -20,7 +20,10 @@ public final class PoseStorage {
         autoEndPose = pose;
     }
 
-    /** Returns the saved auto end pose (or DEFAULT_POSE) and clears it, so a later teleop without auto uses the default. */
+    /**
+     * Returns the saved auto end pose (or DEFAULT_POSE if no auto ran) and clears the stored
+     * value so a subsequent teleop-without-auto gets the default rather than a stale position.
+     */
     public static Pose take() {
         Pose pose = autoEndPose != null ? autoEndPose : DEFAULT_POSE;
         autoEndPose = null;

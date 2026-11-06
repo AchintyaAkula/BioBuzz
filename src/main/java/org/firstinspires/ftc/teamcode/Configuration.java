@@ -5,7 +5,9 @@ import com.qualcomm.hardware.gobilda.GoBildaPinpointDriver.GoBildaOdometryPods;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple.Direction;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.PwmControl;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.hardware.ServoImplEx;
 
 @SuppressWarnings("unused")
 public class Configuration {
@@ -15,6 +17,8 @@ public class Configuration {
 
     public static final MotorConfig FRONT_FLYWHEEL_MOTOR = new MotorConfig("fwf", Direction.REVERSE);
     public static final MotorConfig BACK_FLYWHEEL_MOTOR = new MotorConfig("fwb", Direction.REVERSE);
+
+    public static final ServoConfig TURRET_SERVO = new ServoConfig("turret");
 
     public static final PinpointConfig PINPOINT = new PinpointConfig(
             "pinpoint",
@@ -62,7 +66,10 @@ public class Configuration {
         }
 
         public Servo createServo(HardwareMap hwMap) {
-            return hwMap.get(Servo.class, name);
+            // Axon servos require explicit PWM range; default FTC range clips positions.
+            ServoImplEx s = hwMap.get(ServoImplEx.class, name);
+            s.setPwmRange(new PwmControl.PwmRange(500, 2500));
+            return s;
         }
     }
 

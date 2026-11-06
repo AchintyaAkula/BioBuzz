@@ -1,54 +1,45 @@
 package org.firstinspires.ftc.teamcode.subsystems.shooter;
 
-import com.pedropathing.follower.Follower;
-import com.qualcomm.robotcore.hardware.DcMotor;
+import com.pedropathing.math.Pose;
+import com.pedropathing.math.Vector2D;
 import com.qualcomm.robotcore.hardware.HardwareMap;
-
-import org.firstinspires.ftc.robotcore.external.Telemetry;
-import org.firstinspires.ftc.teamcode.constants.ShooterConstants;
+import com.seattlesolvers.solverslib.util.InterpLUT;
+import org.firstinspires.ftc.teamcode.util.Alliance;
 
 public class ShooterSubsystem {
-    private final Telemetry telemetry;
-    private final HardwareMap hardwareMap;
 
-    private DcMotor shooter1;
-    private DcMotor shooter2;
-    private boolean isRedAlliance;
-    private Follower follower;
-    /** true = low-y top, false = high-y top, null = choose from robot y. */
-    private Boolean lowYOverride = null;
+    private final Turret turret = new Turret();
+    private final Flywheel flywheel = new Flywheel();
+    private Alliance alliance;
 
-    public ShooterSubsystem(HardwareMap hardwareMap, Telemetry telemetry) {
-        this.hardwareMap = hardwareMap;
-        this.telemetry = telemetry;
+    // Distance (inches) → flywheel velocity (ticks/sec) LUT.
+    // Add measured data points from field tuning sessions.
+    private static final InterpLUT speedLut = new InterpLUT();
+
+    static {
+        speedLut.add(0.0, 0.0);
+        // TODO: add real data points from field tuning
+        speedLut.add(19745.0, Flywheel.TARGET_VEL_TPS);
+        speedLut.createLUT();
     }
 
-    public void initShooter(boolean isRedAlliance, Follower follower) {
-        this.isRedAlliance = isRedAlliance;
-        this.follower = follower;
-
-        shooter1 = hardwareMap.get(DcMotor.class, ShooterConstants.MOTOR_NAME_ONE);
-        shooter2 = hardwareMap.get(DcMotor.class, ShooterConstants.MOTOR_NAME_TWO);
+    public void init(HardwareMap hwMap, Alliance alliance) {
+        this.alliance = alliance;
+        turret.init(hwMap);
+        flywheel.init(hwMap);
     }
 
-    public void setLowYOverride(Boolean lowY) {
-        lowYOverride = lowY;
+    /** Call every loop with the current robot pose. */
+    public void update(Pose robotPose) {
+        Pose goal = (robotPose.y() > 141.5 / 2.0) ? alliance.turretTargetFar : alliance.turretTargetClose;
+        Vector2D toGoal = Vector2D.cartesian(goal.x() - robotPose.x(), goal.y() - robotPose.y());
+
+        turret.update(toGoal.theta() - robotPose.heading());
+        flywheel.setTargetVel(speedLut.get(toGoal.magnitude()));
+        flywheel.update();
     }
 
-    /**
-     * Sets power from the LUT using distance to the target top. The target is picked again on every
-     * call from the current robot pose, so call this every loop. Returns the power set.
-     */
-    public double runShooter() {
-        double power = ShooterInterpolation.returnRPM(
-                CalcPoseDist.calcDistance(follower, isRedAlliance, lowYOverride)); // LUT output is motor power
-        shooter1.setPower(power);
-        shooter2.setPower(power);
-        return power;
-    }
-
-    public void stopShooter() {
-        shooter1.setPower(0);
-        shooter2.setPower(0);
+    public Flywheel getFlywheel() {
+        return flywheel;
     }
 }
