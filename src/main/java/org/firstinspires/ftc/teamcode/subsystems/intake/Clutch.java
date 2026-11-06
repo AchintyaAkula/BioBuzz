@@ -1,48 +1,55 @@
 package org.firstinspires.ftc.teamcode.subsystems.intake;
 
+import com.pedropathing.ivy.Command;
+import com.pedropathing.ivy.commands.Commands;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 import org.firstinspires.ftc.teamcode.Configuration;
 
-/** Controls the front/back intake roller clutch servos. Positions are @Config on IntakeSubsystem. */
 class IntakeClutch {
-    private Servo frontServo;
-    private Servo backServo;
+    private static final double FRONT_INTAKE_ENGAGE_POS = 0.94;
+    private static final double FRONT_INTAKE_RELEASE_POS = 0.81;
+    private static final double BACK_INTAKE_ENGAGE_POS = 0.79;
+    private static final double BACK_INTAKE_RELEASE_POS = 0.98;
 
-    void init(HardwareMap hwMap) {
-        frontServo = Configuration.FRONT_INTAKE_SERVO.createServo(hwMap);
-        backServo = Configuration.BACK_INTAKE_SERVO.createServo(hwMap);
+    private Servo frontIntakeClutch;
+    private Servo backIntakeClutch;
+
+    public void init(HardwareMap hwMap) {
+        frontIntakeClutch = Configuration.FRONT_INTAKE_SERVO.createServo(hwMap);
+        backIntakeClutch = Configuration.BACK_INTAKE_SERVO.createServo(hwMap);
     }
 
-    void engageFront() {
-        frontServo.setPosition(IntakeSubsystem.FRONT_ENGAGE_POS);
-        backServo.setPosition(IntakeSubsystem.BACK_RELEASE_POS);
+    public Command engageFront() {
+        return Commands.instant(() -> {
+            frontIntakeClutch.setPosition(FRONT_INTAKE_ENGAGE_POS);
+            backIntakeClutch.setPosition(BACK_INTAKE_RELEASE_POS);
+        });
     }
 
-    void engageBack() {
-        frontServo.setPosition(IntakeSubsystem.FRONT_RELEASE_POS);
-        backServo.setPosition(IntakeSubsystem.BACK_ENGAGE_POS);
-    }
-
-    void releaseAll() {
-        frontServo.setPosition(IntakeSubsystem.FRONT_RELEASE_POS);
-        backServo.setPosition(IntakeSubsystem.BACK_RELEASE_POS);
+    public Command engageBack() {
+        return Commands.instant(() -> {
+            frontIntakeClutch.setPosition(FRONT_INTAKE_RELEASE_POS);
+            backIntakeClutch.setPosition(BACK_INTAKE_ENGAGE_POS);
+        });
     }
 }
 
-/** Controls the transfer servo that seats the transfer mechanism before wheels run. */
 class TransferClutch {
+    private static final double TRANSFER_ENGAGE_POS = 0.1;
+    private static final double TRANSFER_RELEASE_POS = 0.7;
+
     private Servo transferServo;
 
-    void init(HardwareMap hwMap) {
+    public void init(HardwareMap hwMap) {
         transferServo = Configuration.TRANSFER_SERVO.createServo(hwMap);
     }
 
-    void engage() {
-        transferServo.setPosition(IntakeSubsystem.TRANSFER_ENGAGE_POS);
+    public Command engage() {
+        return Commands.instant(() -> transferServo.setPosition(TRANSFER_ENGAGE_POS));
     }
 
-    void disengage() {
-        transferServo.setPosition(IntakeSubsystem.TRANSFER_RELEASE_POS);
+    public Command disengage() {
+        return Commands.instant(() -> transferServo.setPosition(TRANSFER_RELEASE_POS));
     }
 }

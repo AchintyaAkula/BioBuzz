@@ -23,6 +23,7 @@ dependencies {
 
     implementation("com.pedropathing:revhub:3.0.2")
     implementation("com.pedropathing:tuning:1.0.3")
+    implementation("com.pedropathing.ivy:pedro:1.1.1")
 
     implementation("com.acmerobotics.slothboard:dashboard:0.3.2+0.6.0")
 
