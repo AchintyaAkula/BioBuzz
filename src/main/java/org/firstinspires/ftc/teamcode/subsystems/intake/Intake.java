@@ -79,43 +79,60 @@ public class Intake {
     }
 
     public Command transfer() {
-        boolean wasFront = state == IntakeState.FRONT;
+//        boolean wasFront = state == IntakeState.FRONT;
         state = IntakeState.TRANSFER;
-        if (!wasFront) {
-            return Groups.sequential(
-                            Commands.instant(transfer::engage),
-                            Commands.waitMs(350),
-                            Commands.instant(() -> {
-                                frontIntakeMotor.setPower(0.5);
-                                backIntakeMotor.setPower(0.8);
-                            }),
-                            Commands.waitMs(350),
-                            Commands.instant(() -> {
-                                frontIntakeMotor.setPower(0.8);
-                                backIntakeMotor.setPower(0.5);
-                            }),
-                            Commands.waitMs(800),
-                            Commands.instant(this::stop))
-                    .requiring(this)
-                    .setPriority(1);
-        } else {
-            return Groups.sequential(
-                            Commands.instant(transfer::engage),
-                            Commands.waitMs(350),
-                            Commands.instant(() -> {
-                                frontIntakeMotor.setPower(0.8);
-                                backIntakeMotor.setPower(0.5);
-                            }),
-                            Commands.waitMs(350),
-                            Commands.instant(() -> {
-                                frontIntakeMotor.setPower(0.5);
-                                backIntakeMotor.setPower(0.8);
-                            }),
-                            Commands.waitMs(800),
-                            Commands.instant(this::stop))
-                    .requiring(this)
-                    .setPriority(1);
-        }
+        return Groups.sequential(
+                Commands.instant(transfer::engage),
+                Commands.waitMs(350),
+                Commands.instant(() -> {
+                    frontIntakeMotor.setPower(0.8);
+                    backIntakeMotor.setPower(0.5);
+                }),
+                        Commands.waitMs(350),
+                        Commands.instant(() -> {
+                            frontIntakeMotor.setPower(0.5);
+                            backIntakeMotor.setPower(0.8);
+                        }),
+                        Commands.waitMs(800),
+                        Commands.instant(this::stop))
+                .requiring(this)
+                .setPriority(1);
+
+//        if (!wasFront) {
+//            return Groups.sequential(
+//                            Commands.instant(transfer::engage),
+//                            Commands.waitMs(350),
+//                            Commands.instant(() -> {
+//                                frontIntakeMotor.setPower(0.5);
+//                                backIntakeMotor.setPower(0.8);
+//                            }),
+//                            Commands.waitMs(350),
+//                            Commands.instant(() -> {
+//                                frontIntakeMotor.setPower(0.8);
+//                                backIntakeMotor.setPower(0.5);
+//                            }),
+//                            Commands.waitMs(800),
+//                            Commands.instant(this::stop))
+//                    .requiring(this)
+//                    .setPriority(1);
+//        } else {
+//            return Groups.sequential(
+//                            Commands.instant(transfer::engage),
+//                            Commands.waitMs(350),
+//                            Commands.instant(() -> {
+//                                frontIntakeMotor.setPower(0.8);
+//                                backIntakeMotor.setPower(0.5);
+//                            }),
+//                            Commands.waitMs(350),
+//                            Commands.instant(() -> {
+//                                frontIntakeMotor.setPower(0.5);
+//                                backIntakeMotor.setPower(0.8);
+//                            }),
+//                            Commands.waitMs(800),
+//                            Commands.instant(this::stop))
+//                    .requiring(this)
+//                    .setPriority(1);
+//        }
     }
 
     public void stop() {
