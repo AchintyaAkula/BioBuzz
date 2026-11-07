@@ -10,8 +10,8 @@ import com.pedropathing.math.Pose;
  */
 public final class PoseStorage {
     /** Teleop start poses when no auto ran, with the robot facing away from its driver. */
-    public static final Pose RED_DEFAULT_POSE = new Pose(72, 72, Math.toRadians(90));
-    public static final Pose BLUE_DEFAULT_POSE = new Pose(72, 72, Math.toRadians(270));
+    public static final Pose RED_DEFAULT_POSE = new Pose(72, 12, Math.toRadians(90));
+    public static final Pose BLUE_DEFAULT_POSE = new Pose(72, 12, Math.toRadians(270));
 
     private static Pose autoEndPose = null;
 
