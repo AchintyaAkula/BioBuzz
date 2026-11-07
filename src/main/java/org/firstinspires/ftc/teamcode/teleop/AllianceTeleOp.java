@@ -86,7 +86,7 @@ public abstract class AllianceTeleOp extends OpMode {
         fr.setPower(frontRightPower);
         br.setPower(backRightPower);
 
-        if (gamepad1.rightBumperWasPressed() && intake.state != Intake.IntakeState.TRANSFER) {
+        if (gamepad1.rightBumperWasPressed()) {
             intake.transfer().schedule();
         } else if (intake.state != Intake.IntakeState.TRANSFER) {
             if (gamepad1.b) {

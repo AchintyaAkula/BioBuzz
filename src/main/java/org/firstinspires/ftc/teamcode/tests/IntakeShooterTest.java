@@ -58,7 +58,7 @@ public class IntakeShooterTest extends OpMode {
         }
         turret.setAngle(turretAngle);
 
-        if (gamepad1.rightBumperWasPressed() && intake.state != Intake.IntakeState.TRANSFER) {
+        if (gamepad1.rightBumperWasPressed()) {
             intake.transfer().schedule();
         } else if (intake.state == Intake.IntakeState.TRANSFER) {
 
