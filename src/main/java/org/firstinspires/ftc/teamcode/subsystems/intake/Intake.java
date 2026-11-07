@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.subsystems.intake;
 
+import com.acmerobotics.dashboard.config.Config;
 import com.pedropathing.ivy.Command;
 import com.pedropathing.ivy.commands.Commands;
 import com.pedropathing.ivy.groups.Groups;
@@ -8,6 +9,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 import org.firstinspires.ftc.teamcode.Configuration;
 
+@Config
 public class Intake {
     public enum IntakeState {
         FRONT,
@@ -80,17 +82,17 @@ public class Intake {
         state = IntakeState.TRANSFER;
         return Groups.sequential(
                         Commands.instant(transfer::engage),
-                        Commands.waitMs(300),
+                        Commands.waitMs(350),
                         Commands.instant(() -> {
-                            if (this.state == IntakeState.BACK) {
-                                frontIntakeMotor.setPower(0.6);
-                                backIntakeMotor.setPower(0.8);
-                            } else {
                                 frontIntakeMotor.setPower(0.8);
-                                backIntakeMotor.setPower(0.6);
-                            }
+                                backIntakeMotor.setPower(0.5);
                         }),
-                        Commands.waitMs(1000),
+                        Commands.waitMs(350),
+                        Commands.instant(() -> {
+                            frontIntakeMotor.setPower(0.5);
+                            backIntakeMotor.setPower(0.8);
+                        }),
+                        Commands.waitMs(800),
                         Commands.instant(this::stop))
                 .requiring(this)
                 .setPriority(1);
