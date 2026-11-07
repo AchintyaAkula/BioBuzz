@@ -1,7 +1,5 @@
 package org.firstinspires.ftc.teamcode.teleop;
 
-import com.pedropathing.drivetrain.DrivePowers;
-import com.pedropathing.follower.ManualDrive;
 import com.pedropathing.ivy.Scheduler;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
@@ -42,15 +40,7 @@ public abstract class AllianceTeleOp extends OpMode {
 
     @Override
     public void loop() {
-        // Pinpoint heading is a field angle. Red's driver looks along heading 90, blue's along 270
-        double driverForward = Math.toRadians(isRed ? 90 : 270);
-        DrivePowers powers = ManualDrive.fieldCentric(
-                -gamepad1.left_stick_y,
-                -gamepad1.left_stick_x,
-                -gamepad1.right_stick_x,
-                drivetrain.pose().heading() - driverForward);
-
-        drivetrain.drive(powers);
+        drivetrain.drive(-gamepad1.left_stick_y, -gamepad1.left_stick_x, -gamepad1.right_stick_x);
 
         if (gamepad1.rightBumperWasPressed()) {
             intake.transfer().schedule();
