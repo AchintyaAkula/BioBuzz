@@ -1,5 +1,8 @@
 package org.firstinspires.ftc.teamcode.subsystems.intake;
 
+import com.pedropathing.ivy.Command;
+import com.pedropathing.ivy.commands.Commands;
+import com.pedropathing.ivy.groups.Groups;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -21,7 +24,6 @@ public class Intake {
     private static final double EJECT_INTAKE_POWER = -0.7;
     private static final double INTAKE_STALL_CURRENT_MA = 3000.0;
     private static final double TRANSFER_ENGAGE_SEC = 0.2;
-    private static final double TRANSFER_RUN_SEC = 0.4;
 
     private final IntakeClutch clutch = new IntakeClutch();
     private final TransferClutch transfer = new TransferClutch();
@@ -31,8 +33,9 @@ public class Intake {
     private DcMotorEx backIntakeMotor;
 
     private boolean lastIntakeBack = false;
+    private boolean timedTransfer = false;
     private boolean transferMotorsOn = false;
-    private double transferRunSec = TRANSFER_RUN_SEC;
+    private double transferRunSec = 0.0;
 
     public IntakeState state;
 
@@ -56,8 +59,8 @@ public class Intake {
             if (frontIntakeMotor.isOverCurrent()) {
                 frontIntakeMotor.setPower(0);
             }
-        } else if (state == IntakeState.TRANSFER) {
-            updateTransfer();
+        } else if (timedTransfer) {
+            updateTimedTransfer();
         }
     }
 
@@ -85,15 +88,25 @@ public class Intake {
         frontIntakeMotor.setPower(EJECT_INTAKE_POWER);
     }
 
-    public void startTransfer() {
-        startTransfer(TRANSFER_RUN_SEC);
+    public Command transfer() {
+        state = IntakeState.TRANSFER;
+        return Groups.sequential(
+                        Commands.instant(transfer::engage),
+                        Commands.waitMs(200),
+                        Commands.instant(this::runTransferMotors),
+                        Commands.waitMs(400),
+                        Commands.instant(this::stop))
+                .requiring(this)
+                .setPriority(1);
     }
 
+    // Non-Ivy transfer for autos, advanced by update()
     public void startTransfer(double runSec) {
         if (isTransferring()) {
             return;
         }
         state = IntakeState.TRANSFER;
+        timedTransfer = true;
         transferRunSec = runSec;
         transferMotorsOn = false;
         transfer.engage();
@@ -104,11 +117,10 @@ public class Intake {
         return state == IntakeState.TRANSFER;
     }
 
-    private void updateTransfer() {
+    private void updateTimedTransfer() {
         if (!transferMotorsOn) {
             if (transferTimer.seconds() > TRANSFER_ENGAGE_SEC) {
-                frontIntakeMotor.setPower(lastIntakeBack ? SLOW_INTAKE_POWER : FAST_INTAKE_POWER);
-                backIntakeMotor.setPower(lastIntakeBack ? FAST_INTAKE_POWER : SLOW_INTAKE_POWER);
+                runTransferMotors();
                 transferMotorsOn = true;
                 transferTimer.reset();
             }
@@ -117,8 +129,14 @@ public class Intake {
         }
     }
 
+    private void runTransferMotors() {
+        frontIntakeMotor.setPower(lastIntakeBack ? SLOW_INTAKE_POWER : FAST_INTAKE_POWER);
+        backIntakeMotor.setPower(lastIntakeBack ? FAST_INTAKE_POWER : SLOW_INTAKE_POWER);
+    }
+
     public void stop() {
         state = IntakeState.STOPPED;
+        timedTransfer = false;
         transfer.disengage();
         frontIntakeMotor.setPower(0);
         backIntakeMotor.setPower(0);

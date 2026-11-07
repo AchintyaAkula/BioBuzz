@@ -13,6 +13,10 @@ public class Drivetrain {
         follower = Constants.create(hwMap);
     }
 
+    public void initAuto(HardwareMap hwMap) {
+        follower = Constants.createAuto(hwMap);
+    }
+
     public void update() {
         follower.update();
     }

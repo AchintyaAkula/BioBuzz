@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.teleop;
 
+import com.pedropathing.ivy.Scheduler;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import org.firstinspires.ftc.teamcode.subsystems.drivetrain.Drivetrain;
 import org.firstinspires.ftc.teamcode.subsystems.intake.Intake;
@@ -19,6 +20,7 @@ public abstract class AllianceTeleOp extends OpMode {
 
     @Override
     public void init() {
+        Scheduler.reset();
         drivetrain.init(hardwareMap);
         intake.init(hardwareMap);
         shooter.init(hardwareMap);
@@ -35,8 +37,8 @@ public abstract class AllianceTeleOp extends OpMode {
         drivetrain.drive(-gamepad1.left_stick_y, -gamepad1.left_stick_x, -gamepad1.right_stick_x);
 
         if (gamepad1.rightBumperWasPressed()) {
-            intake.startTransfer();
-        } else if (!intake.isTransferring()) {
+            intake.transfer().schedule();
+        } else if (intake.state != Intake.IntakeState.TRANSFER) {
             if (gamepad1.b) {
                 intake.eject();
             } else if (gamepad1.right_trigger_pressed) {
@@ -57,6 +59,7 @@ public abstract class AllianceTeleOp extends OpMode {
         drivetrain.update();
         shooter.update(drivetrain.pose(), isRed);
         intake.update();
+        Scheduler.execute();
 
         telemetry.addData("Pose", drivetrain.pose());
         shooter.addTelemetry(telemetry);

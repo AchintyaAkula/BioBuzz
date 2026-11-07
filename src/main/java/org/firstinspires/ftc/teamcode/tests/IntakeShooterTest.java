@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.tests;
 
 import com.acmerobotics.dashboard.config.Config;
+import com.pedropathing.ivy.Scheduler;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import org.firstinspires.ftc.teamcode.subsystems.intake.Intake;
@@ -19,6 +20,7 @@ public class IntakeShooterTest extends OpMode {
 
     @Override
     public void init() {
+        Scheduler.reset();
         intake.init(hardwareMap);
         flywheel.init(hardwareMap);
     }
@@ -37,8 +39,8 @@ public class IntakeShooterTest extends OpMode {
         flywheel.setTarget(target);
 
         if (gamepad1.rightBumperWasPressed()) {
-            intake.startTransfer();
-        } else if (intake.isTransferring()) {
+            intake.transfer().schedule();
+        } else if (intake.state == Intake.IntakeState.TRANSFER) {
 
         } else if (gamepad1.left_bumper) {
             intake.eject();
@@ -52,5 +54,6 @@ public class IntakeShooterTest extends OpMode {
 
         flywheel.update();
         intake.update();
+        Scheduler.execute();
     }
 }
