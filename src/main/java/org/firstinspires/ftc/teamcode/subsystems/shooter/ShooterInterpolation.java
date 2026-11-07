@@ -9,15 +9,15 @@ public class ShooterInterpolation {
 
     static {
         // distance in inches -> velocity in ticks/sec
-        shooterSpeed.add(0.0, 0);
-        shooterSpeed.add(15, 1000);
-        shooterSpeed.add(25, 1500);
-        shooterSpeed.add(45, 1750);
-        shooterSpeed.add(53, 2000);
-        shooterSpeed.add(58, 2250);
-        shooterSpeed.add(63, 2500);
-        shooterSpeed.add(68, 2750);
-        shooterSpeed.add(19745, 3000); // js so we dont error out if we r too far away
+        shooterSpeed.add(0.0, 285);
+        shooterSpeed.add(15, 285);
+        shooterSpeed.add(25, 285);
+        shooterSpeed.add(45, 285);
+        shooterSpeed.add(53, 285);
+        shooterSpeed.add(58, 285);
+        shooterSpeed.add(63, 285);
+        shooterSpeed.add(68, 285);
+        shooterSpeed.add(19745, 285); // js so we dont error out if we r too far away
         shooterSpeed.createLUT();
     }
 

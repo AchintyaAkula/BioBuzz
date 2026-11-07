@@ -64,4 +64,8 @@ public class Shooter {
         telemetry.addData("Turret Servo Target", turret.getTargetPosition());
         telemetry.addData("Aim Target", aimTarget);
     }
+
+    public void toggleTurret() {
+        turret.toggleAiming();
+    }
 }

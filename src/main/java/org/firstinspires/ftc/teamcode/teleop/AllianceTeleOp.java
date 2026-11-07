@@ -48,6 +48,7 @@ public abstract class AllianceTeleOp extends OpMode {
     public void loop() {
         drivetrain.drive(-gamepad1.left_stick_y, -gamepad1.left_stick_x, -gamepad1.right_stick_x);
 
+//        shooter.update(drivetrain.pose(), isRed);
         if (gamepad1.rightBumperWasPressed()) {
             intake.transfer().schedule();
         } else if (intake.state != Intake.IntakeState.TRANSFER) {
@@ -60,6 +61,10 @@ public abstract class AllianceTeleOp extends OpMode {
             } else {
                 intake.stop();
             }
+        }
+
+        if (gamepad1.xWasPressed()) {
+            shooter.toggleTurret();
         }
 
         drivetrain.update();

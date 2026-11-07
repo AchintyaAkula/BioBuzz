@@ -19,13 +19,13 @@ public class Intake {
         EJECT
     }
 
-    private static final double FAST_INTAKE_POWER = 1.0;
-    private static final double SLOW_INTAKE_POWER = 0.8;
-    private static final double PASSIVE_INTAKE_POWER = -0.6;
-    private static final double EJECT_INTAKE_POWER = -0.7;
+    private static final double FAST_INTAKE_POWER = -1.0;
+    private static final double SLOW_INTAKE_POWER = -0.8;
+    private static final double PASSIVE_INTAKE_POWER = 0.6;
+    private static final double EJECT_INTAKE_POWER = 0.7;
     private static final double INTAKE_STALL_CURRENT_MA = 3000.0;
-    private static final double TRANSFER_FRONT_POWER = 0.8;
-    private static final double TRANSFER_BACK_POWER = 0.6;
+    private static final double TRANSFER_FRONT_POWER = -0.8;
+    private static final double TRANSFER_BACK_POWER = -0.6;
 
     private final IntakeClutch clutch = new IntakeClutch();
     private final TransferClutch transfer = new TransferClutch();
