@@ -13,12 +13,14 @@ public class Intake {
         FRONT,
         BACK,
         TRANSFER,
-        STOPPED
+        STOPPED,
+        EJECT
     }
 
     private static final double FAST_INTAKE_POWER = 1.0;
     private static final double SLOW_INTAKE_POWER = 0.8;
-    private static final double PASSIVE_INTAKE_POWER = -0.5;
+    private static final double PASSIVE_INTAKE_POWER = -0.6;
+    private static final double EJECT_INTAKE_POWER = -0.7;
     private static final double INTAKE_STALL_CURRENT_MA = 3000.0;
 
     private final IntakeClutch clutch = new IntakeClutch();
@@ -27,7 +29,7 @@ public class Intake {
     private DcMotorEx frontIntakeMotor;
     private DcMotorEx backIntakeMotor;
 
-    private IntakeState state;
+    public IntakeState state;
 
     public void init(HardwareMap hwMap) {
         frontIntakeMotor = Configuration.FRONT_INTAKE_MOTOR.createMotor(hwMap);
@@ -52,30 +54,32 @@ public class Intake {
         }
     }
 
-    public Command frontIntake() {
+    public void frontIntake() {
         state = IntakeState.FRONT;
-        return Groups.sequential(transfer.disengage(), clutch.engageFront(), Commands.instant(() -> {
-                    frontIntakeMotor.setPower(FAST_INTAKE_POWER);
-                    backIntakeMotor.setPower(PASSIVE_INTAKE_POWER);
-                }))
-                .requiring(this)
-                .setPriority(0);
+        transfer.disengage();
+        clutch.engageFront();
+        frontIntakeMotor.setPower(FAST_INTAKE_POWER);
+        backIntakeMotor.setPower(PASSIVE_INTAKE_POWER);
     }
 
-    public Command backIntake() {
+    public void backIntake() {
         state = IntakeState.BACK;
-        return Groups.sequential(transfer.disengage(), clutch.engageBack(), Commands.instant(() -> {
+        transfer.disengage();
+        clutch.engageBack();
                     frontIntakeMotor.setPower(PASSIVE_INTAKE_POWER);
                     backIntakeMotor.setPower(FAST_INTAKE_POWER);
-                }))
-                .requiring(this)
-                .setPriority(0);
+    }
+
+    public void eject() {
+        state = IntakeState.EJECT;
+        backIntakeMotor.setPower(EJECT_INTAKE_POWER);
+        frontIntakeMotor.setPower(EJECT_INTAKE_POWER);
     }
 
     public Command transfer() {
         state = IntakeState.TRANSFER;
         return Groups.sequential(
-                        transfer.engage(),
+                        Commands.instant(transfer::engage),
                         Commands.waitMs(200),
                         Commands.instant(() -> {
                             if (this.state == IntakeState.BACK) {
@@ -87,18 +91,17 @@ public class Intake {
                             }
                         }),
                         Commands.waitMs(400),
-                        stop())
+                        Commands.instant(this::stop))
                 .requiring(this)
                 .setPriority(1);
     }
 
-    public Command stop() {
+    public void stop() {
         state = IntakeState.STOPPED;
-        return Groups.sequential(transfer.disengage(), Commands.instant(() -> {
+        transfer.disengage();
                     frontIntakeMotor.setPower(0);
                     backIntakeMotor.setPower(0);
-                }))
-                .requiring(this)
-                .setPriority(-1);
+                    clutch.release();
+
     }
 }

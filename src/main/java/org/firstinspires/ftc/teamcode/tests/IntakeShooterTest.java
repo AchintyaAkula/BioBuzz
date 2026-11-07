@@ -13,7 +13,9 @@ public class IntakeShooterTest extends OpMode {
     private Intake intake = new Intake();
     private Flywheel flywheel = new Flywheel();
 
-    public static double pow = 0.0;
+    public static double target = 0.0;
+    public
+
 
     @Override
     public void init() {
@@ -29,20 +31,24 @@ public class IntakeShooterTest extends OpMode {
         }
 
         if (gamepad1.dpadUpWasPressed()) {
-            pow += 0.05;
+            target += 10;
         } else if (gamepad1.dpadDownWasPressed()) {
-            pow -= 0.05;
+            target -= 10;
         }
-        flywheel.setPower(pow);
+        flywheel.setPower(target);
 
         if (gamepad1.rightBumperWasPressed()) {
             intake.transfer().schedule();
+        } else if (intake.state == Intake.IntakeState.TRANSFER) {
+
+        } else if (gamepad1.left_bumper) {
+            intake.eject();
         } else if (gamepad1.right_trigger_pressed) {
-            intake.frontIntake().schedule();
+            intake.frontIntake();
         } else if (gamepad1.left_trigger_pressed) {
-            intake.backIntake().schedule();
+            intake.backIntake();
         } else {
-            intake.stop().schedule();
+            intake.stop();
         }
 
         flywheel.update();

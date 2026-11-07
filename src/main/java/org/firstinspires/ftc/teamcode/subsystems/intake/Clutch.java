@@ -20,24 +20,25 @@ class IntakeClutch {
         backIntakeClutch = Configuration.BACK_INTAKE_SERVO.createServo(hwMap);
     }
 
-    public Command engageFront() {
-        return Commands.instant(() -> {
+    public void engageFront() {
             frontIntakeClutch.setPosition(FRONT_INTAKE_ENGAGE_POS);
             backIntakeClutch.setPosition(BACK_INTAKE_RELEASE_POS);
-        });
     }
 
-    public Command engageBack() {
-        return Commands.instant(() -> {
+    public void engageBack() {
             frontIntakeClutch.setPosition(FRONT_INTAKE_RELEASE_POS);
             backIntakeClutch.setPosition(BACK_INTAKE_ENGAGE_POS);
-        });
+    }
+
+    public void release() {
+            frontIntakeClutch.setPosition(FRONT_INTAKE_RELEASE_POS);
+            backIntakeClutch.setPosition(BACK_INTAKE_RELEASE_POS);
     }
 }
 
 class TransferClutch {
-    private static final double TRANSFER_ENGAGE_POS = 0.1;
-    private static final double TRANSFER_RELEASE_POS = 0.7;
+    private static final double TRANSFER_ENGAGE_POS = 0.96;
+    private static final double TRANSFER_RELEASE_POS = 0.6;
 
     private Servo transferServo;
 
@@ -45,11 +46,11 @@ class TransferClutch {
         transferServo = Configuration.TRANSFER_SERVO.createServo(hwMap);
     }
 
-    public Command engage() {
-        return Commands.instant(() -> transferServo.setPosition(TRANSFER_ENGAGE_POS));
+    public void engage() {
+        transferServo.setPosition(TRANSFER_ENGAGE_POS);
     }
 
-    public Command disengage() {
-        return Commands.instant(() -> transferServo.setPosition(TRANSFER_RELEASE_POS));
+    public void disengage() {
+        transferServo.setPosition(TRANSFER_RELEASE_POS);
     }
 }
