@@ -24,8 +24,8 @@ public class Intake {
     private static final double PASSIVE_INTAKE_POWER = -0.6;
     private static final double EJECT_INTAKE_POWER = -0.7;
     private static final double INTAKE_STALL_CURRENT_MA = 3000.0;
-    private static double TRANSFER_FAST_POWER = 0.9;
-    private static double TRANSFER_SLOW_POWER = 0.4;
+    private static final double TRANSFER_FRONT_POWER = 0.8;
+    private static final double TRANSFER_BACK_POWER = 0.6;
 
     private final IntakeClutch clutch = new IntakeClutch();
     private final TransferClutch transfer = new TransferClutch();
@@ -34,9 +34,6 @@ public class Intake {
     private DcMotorEx backIntakeMotor;
 
     public IntakeState state;
-
-    // stop() runs every idle loop and clears state, so remember the side here
-    private boolean lastIntakeFront = true;
 
     public void init(HardwareMap hwMap) {
         frontIntakeMotor = Configuration.FRONT_INTAKE_MOTOR.createMotor(hwMap);
@@ -63,7 +60,6 @@ public class Intake {
 
     public void frontIntake() {
         state = IntakeState.FRONT;
-        lastIntakeFront = true;
         transfer.disengage();
         clutch.engageFront();
         frontIntakeMotor.setPower(FAST_INTAKE_POWER);
@@ -72,7 +68,6 @@ public class Intake {
 
     public void backIntake() {
         state = IntakeState.BACK;
-        lastIntakeFront = false;
         transfer.disengage();
         clutch.engageBack();
                     frontIntakeMotor.setPower(PASSIVE_INTAKE_POWER);
@@ -86,28 +81,16 @@ public class Intake {
     }
 
     public Command transfer() {
-        // last intake side goes fast first, then the other side takes over
-        double firstFrontPower = lastIntakeFront ? TRANSFER_FAST_POWER : TRANSFER_SLOW_POWER;
-        double firstBackPower = lastIntakeFront ? TRANSFER_SLOW_POWER : TRANSFER_FAST_POWER;
-        double firstFront = lastIntakeFront ? TRANSFER_FAST_POWER : -0;
-        double firstBack = lastIntakeFront ? -0 : TRANSFER_FAST_POWER;
-
         state = IntakeState.TRANSFER;
         return Groups.sequential(
-                Commands.instant(clutch::engageBoth),
-                Commands.instant(transfer::engage),
-                Commands.waitMs(300),
-                Commands.instant(() -> {
-                    frontIntakeMotor.setPower(firstFront);
-                    backIntakeMotor.setPower(firstBack);
-                }),
-                Commands.waitMs(450),
-                Commands.instant(() -> {
-                    frontIntakeMotor.setPower(firstBackPower);
-                    backIntakeMotor.setPower(firstFrontPower);
-                }),
-                Commands.waitMs(800),
-                Commands.instant(this::stop))
+                        Commands.instant(transfer::engage),
+                        Commands.waitMs(300),
+                        Commands.instant(() -> {
+                            frontIntakeMotor.setPower(TRANSFER_FRONT_POWER);
+                            backIntakeMotor.setPower(TRANSFER_BACK_POWER);
+                        }),
+                        Commands.waitMs(1000),
+                        Commands.instant(this::stop))
                 .requiring(this)
                 .setPriority(1);
     }
