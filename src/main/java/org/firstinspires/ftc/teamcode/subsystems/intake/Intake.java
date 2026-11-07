@@ -24,8 +24,8 @@ public class Intake {
     private static final double PASSIVE_INTAKE_POWER = -0.6;
     private static final double EJECT_INTAKE_POWER = -0.7;
     private static final double INTAKE_STALL_CURRENT_MA = 3000.0;
-    private static final double TRANSFER_FAST_POWER = 0.9;
-    private static final double TRANSFER_SLOW_POWER = 0.4;
+    private static double TRANSFER_FAST_POWER = 0.9;
+    private static double TRANSFER_SLOW_POWER = 0.4;
 
     private final IntakeClutch clutch = new IntakeClutch();
     private final TransferClutch transfer = new TransferClutch();
@@ -89,14 +89,17 @@ public class Intake {
         // last intake side goes fast first, then the other side takes over
         double firstFrontPower = lastIntakeFront ? TRANSFER_FAST_POWER : TRANSFER_SLOW_POWER;
         double firstBackPower = lastIntakeFront ? TRANSFER_SLOW_POWER : TRANSFER_FAST_POWER;
+        double firstFront = lastIntakeFront ? TRANSFER_FAST_POWER : -0;
+        double firstBack = lastIntakeFront ? -0 : TRANSFER_FAST_POWER;
 
         state = IntakeState.TRANSFER;
         return Groups.sequential(
+                Commands.instant(clutch::engageBoth),
                 Commands.instant(transfer::engage),
                 Commands.waitMs(300),
                 Commands.instant(() -> {
-                    frontIntakeMotor.setPower(firstFrontPower);
-                    backIntakeMotor.setPower(firstBackPower);
+                    frontIntakeMotor.setPower(firstFront);
+                    backIntakeMotor.setPower(firstBack);
                 }),
                 Commands.waitMs(450),
                 Commands.instant(() -> {

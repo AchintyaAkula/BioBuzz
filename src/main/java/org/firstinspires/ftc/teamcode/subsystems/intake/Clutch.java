@@ -28,6 +28,11 @@ class IntakeClutch {
         backIntakeClutch.setPosition(BACK_INTAKE_ENGAGE_POS);
     }
 
+    public void engageBoth() {
+        frontIntakeClutch.setPosition(FRONT_INTAKE_ENGAGE_POS);
+        backIntakeClutch.setPosition(BACK_INTAKE_ENGAGE_POS);
+    }
+
     public void release() {
         frontIntakeClutch.setPosition(FRONT_INTAKE_RELEASE_POS);
         backIntakeClutch.setPosition(BACK_INTAKE_RELEASE_POS);
