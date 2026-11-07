@@ -35,7 +35,7 @@ public abstract class AllianceTeleOp extends OpMode {
     @Override
     public void start() {
         // Pinpoint resets during init, so a pose set there can be lost
-        drivetrain.setPose(PoseStorage.take(isRed));
+        drivetrain.setPose(PoseStorage.take());
     }
 
     @Override
