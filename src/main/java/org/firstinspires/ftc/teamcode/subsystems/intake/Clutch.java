@@ -7,10 +7,10 @@ import com.qualcomm.robotcore.hardware.Servo;
 import org.firstinspires.ftc.teamcode.Configuration;
 
 class IntakeClutch {
-    private static final double FRONT_INTAKE_ENGAGE_POS = 0.94;
+    private static final double FRONT_INTAKE_ENGAGE_POS = 0.9;
     private static final double FRONT_INTAKE_RELEASE_POS = 0.81;
-    private static final double BACK_INTAKE_ENGAGE_POS = 0.79;
-    private static final double BACK_INTAKE_RELEASE_POS = 0.98;
+    private static final double BACK_INTAKE_ENGAGE_POS = 0.81;
+    private static final double BACK_INTAKE_RELEASE_POS = 0.94;
 
     private Servo frontIntakeClutch;
     private Servo backIntakeClutch;
