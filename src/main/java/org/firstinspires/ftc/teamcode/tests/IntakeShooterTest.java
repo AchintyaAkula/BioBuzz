@@ -83,6 +83,7 @@ public class IntakeShooterTest extends OpMode {
         telemetry.addData("front error", flywheel.getTarget() - flywheel.getFrontVelocity());
         telemetry.addData("back error", flywheel.getTarget() - flywheel.getBackVelocity());
         telemetry.addData("Turret Angle", turret.getAngle());
+        telemetry.addData("Turret Servo Target", turret.getTargetPosition());
         telemetry.addData("loop ms", loopTimer.milliseconds());
         loopTimer.reset();
         telemetry.update();

@@ -1,6 +1,8 @@
 package org.firstinspires.ftc.teamcode.tests;
 
+import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
+import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.math.Vector2D;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
@@ -19,6 +21,7 @@ public class TurretTest extends OpMode {
 
     @Override
     public void init() {
+        telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
         follower = Constants.create(hardwareMap);
         turret.init(hardwareMap);
     }
@@ -50,6 +53,7 @@ public class TurretTest extends OpMode {
         telemetry.addData("Robot Heading (deg)", Math.toDegrees(follower.pose().heading()));
         telemetry.addData("Target Angle (deg)", angleDeg);
         telemetry.addData("Normalized Turret Angle", normalizedAngle);
+        telemetry.addData("Turret Servo Target", turret.getTargetPosition());
         telemetry.update();
     }
 }

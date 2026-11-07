@@ -61,6 +61,7 @@ public class Shooter {
         telemetry.addData("Flywheel Front Velocity", flywheel.getFrontVelocity());
         telemetry.addData("Flywheel Back Velocity", flywheel.getBackVelocity());
         telemetry.addData("Turret Angle", turret.getAngle());
+        telemetry.addData("Turret Servo Target", turret.getTargetPosition());
         telemetry.addData("Aim Target", aimTarget);
     }
 }

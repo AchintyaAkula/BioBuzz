@@ -25,8 +25,13 @@ public class Turret {
     }
 
     public void update() {
+        turretServo.setPosition(getTargetPosition());
+    }
+
+    /** Servo position the turret is commanded to, 0..1. The servo does not report where it actually is. */
+    public double getTargetPosition() {
         double pos = turret0Pos + (turretDirection * angDeg / TURRET_ROM);
-        turretServo.setPosition(Math.max(0.0, Math.min(1.0, pos)));
+        return Math.max(0.0, Math.min(1.0, pos));
     }
 
     public void setAngle(double angDeg) {
