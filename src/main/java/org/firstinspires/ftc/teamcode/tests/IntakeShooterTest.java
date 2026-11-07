@@ -6,6 +6,7 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import org.firstinspires.ftc.teamcode.subsystems.intake.Intake;
 import org.firstinspires.ftc.teamcode.subsystems.shooter.Flywheel;
+import org.firstinspires.ftc.teamcode.util.VelPIDController;
 
 @Config
 @TeleOp(name = "Intake Shooter Test")
@@ -14,7 +15,8 @@ public class IntakeShooterTest extends OpMode {
     private Flywheel flywheel = new Flywheel();
 
     public static double target = 0.0;
-    public
+    public VelPIDController frontPID = new VelPIDController(0.0, 0.06, 0.0004, 0);
+    public VelPIDController backPID = new VelPIDController(0.0, 0.06, 0.0004, 0);
 
 
     @Override
@@ -35,7 +37,7 @@ public class IntakeShooterTest extends OpMode {
         } else if (gamepad1.dpadDownWasPressed()) {
             target -= 10;
         }
-        flywheel.setPower(target);
+        flywheel.setTarget(target);
 
         if (gamepad1.rightBumperWasPressed()) {
             intake.transfer().schedule();

@@ -3,13 +3,17 @@ package org.firstinspires.ftc.teamcode.subsystems.shooter;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import org.firstinspires.ftc.teamcode.Configuration;
+import org.firstinspires.ftc.teamcode.util.VelPIDController;
 
 public class Flywheel {
     private DcMotorEx frontFlywheel;
     private DcMotorEx backFlywheel;
 
-    private double pow = 0.0;
+    private VelPIDController frontPID = new VelPIDController(0.0, 0.06, 0.0004, 0);
+    private VelPIDController backPID = new VelPIDController(0.0, 0.06, 0.0004, 0);
+
     private boolean on = false;
+    private double target = 0.0;
 
     public void init(HardwareMap hwMap) {
         frontFlywheel = Configuration.FRONT_FLYWHEEL_MOTOR.createMotor(hwMap);
@@ -17,9 +21,11 @@ public class Flywheel {
     }
 
     public void update() {
+        frontPID.setTarget(target);
+        backPID.setTarget(target);
         if (on) {
-            frontFlywheel.setPower(pow);
-            backFlywheel.setPower(pow);
+            frontFlywheel.setPower(frontPID.calculate(frontFlywheel.getVelocity()));
+            backFlywheel.setPower(backPID.calculate(backFlywheel.getVelocity()));
         }
     }
 
@@ -27,7 +33,7 @@ public class Flywheel {
         on = !on;
     }
 
-    public void setPower(double pow) {
-        this.pow = pow;
+    public void setTarget(double target) {
+        this.target = target;
     }
 }
