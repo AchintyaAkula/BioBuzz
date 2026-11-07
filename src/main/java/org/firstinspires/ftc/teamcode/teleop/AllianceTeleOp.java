@@ -1,5 +1,8 @@
 package org.firstinspires.ftc.teamcode.teleop;
 
+import com.pedropathing.drivetrain.DrivePowers;
+import com.pedropathing.follower.Follower;
+import com.pedropathing.follower.ManualDrive;
 import com.pedropathing.ivy.Scheduler;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import org.firstinspires.ftc.teamcode.subsystems.drivetrain.Drivetrain;
@@ -13,6 +16,7 @@ public abstract class AllianceTeleOp extends OpMode {
     private final Shooter shooter = new Shooter();
 
     private final boolean isRed;
+    private Follower follower;
 
     protected AllianceTeleOp(boolean isRed) {
         this.isRed = isRed;
@@ -34,7 +38,16 @@ public abstract class AllianceTeleOp extends OpMode {
 
     @Override
     public void loop() {
-        drivetrain.drive(-gamepad1.left_stick_y, -gamepad1.left_stick_x, -gamepad1.right_stick_x);
+        DrivePowers powers = ManualDrive.fieldCentric(
+                -gamepad1.left_stick_y,
+                -gamepad1.left_stick_x,
+                -gamepad1.right_stick_x,
+                follower.pose().heading()
+        );
+
+        follower.manual(powers);
+        follower.update();
+
 
         if (gamepad1.rightBumperWasPressed()) {
             intake.transfer().schedule();

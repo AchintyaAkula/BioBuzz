@@ -9,8 +9,8 @@ public class Flywheel {
     public DcMotorEx frontFlywheel;
     public DcMotorEx backFlywheel;
 
-    private VelPIDController frontPID = new VelPIDController(0.0019, 0.06, 0.00056, 0);
-    private VelPIDController backPID = new VelPIDController(0.0019, 0.06, 0.00056, 0);
+    private VelPIDController frontPID = new VelPIDController(0.0023, 0.06, 0.00054, 0);
+    private VelPIDController backPID = new VelPIDController(0.0023, 0.06, 0.00054, 0);
 
     private boolean on = false;
     private double target = 0.0;
