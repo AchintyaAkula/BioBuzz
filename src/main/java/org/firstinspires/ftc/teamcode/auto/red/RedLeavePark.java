@@ -39,7 +39,7 @@ public class RedLeavePark extends OpMode {
 
     @Override
     public void init() {
-        drivetrain.init(hardwareMap);
+        drivetrain.initAuto(hardwareMap);
     }
 
     @Override

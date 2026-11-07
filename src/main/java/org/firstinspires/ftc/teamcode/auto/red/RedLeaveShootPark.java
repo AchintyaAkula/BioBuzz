@@ -58,7 +58,7 @@ public class RedLeaveShootPark extends OpMode {
 
     @Override
     public void init() {
-        drivetrain.init(hardwareMap);
+        drivetrain.initAuto(hardwareMap);
         intake.init(hardwareMap);
         shooter.init(hardwareMap);
     }
