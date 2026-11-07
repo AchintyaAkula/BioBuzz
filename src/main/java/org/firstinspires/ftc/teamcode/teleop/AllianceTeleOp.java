@@ -1,21 +1,18 @@
 package org.firstinspires.ftc.teamcode.teleop;
 
+import com.pedropathing.drivetrain.DrivePowers;
+import com.pedropathing.follower.ManualDrive;
 import com.pedropathing.ivy.Scheduler;
-import com.pedropathing.math.Pose;
-import com.pedropathing.revhub.localizers.PinpointLocalizer;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
-import com.qualcomm.robotcore.hardware.DcMotorEx;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.util.ElapsedTime;
-import org.firstinspires.ftc.teamcode.pedro.Constants;
+import org.firstinspires.ftc.teamcode.subsystems.drivetrain.Drivetrain;
 import org.firstinspires.ftc.teamcode.subsystems.intake.Intake;
 import org.firstinspires.ftc.teamcode.subsystems.shooter.Shooter;
 import org.firstinspires.ftc.teamcode.util.PoseStorage;
 
 public abstract class AllianceTeleOp extends OpMode {
-    private DcMotorEx fl, bl, fr, br;
-    private PinpointLocalizer localizer;
+    private final Drivetrain drivetrain = new Drivetrain();
     private final Intake intake = new Intake();
     private final Shooter shooter = new Shooter();
     private final ElapsedTime loopTimer = new ElapsedTime();
@@ -32,13 +29,7 @@ public abstract class AllianceTeleOp extends OpMode {
         for (LynxModule hub : hardwareMap.getAll(LynxModule.class)) {
             hub.setBulkCachingMode(LynxModule.BulkCachingMode.AUTO);
         }
-        fl = hardwareMap.get(DcMotorEx.class, "fl");
-        bl = hardwareMap.get(DcMotorEx.class, "bl");
-        fr = hardwareMap.get(DcMotorEx.class, "fr");
-        br = hardwareMap.get(DcMotorEx.class, "br");
-        fr.setDirection(DcMotorSimple.Direction.REVERSE);
-        br.setDirection(DcMotorSimple.Direction.REVERSE);
-        localizer = new PinpointLocalizer(hardwareMap, Constants.pinpointCfg);
+        drivetrain.init(hardwareMap);
         intake.init(hardwareMap);
         shooter.init(hardwareMap);
     }
@@ -46,45 +37,20 @@ public abstract class AllianceTeleOp extends OpMode {
     @Override
     public void start() {
         // Pinpoint resets during init, so a pose set there can be lost
-        localizer.setPose(PoseStorage.take(isRed));
-        localizer.update();
+        drivetrain.setPose(PoseStorage.take(isRed));
     }
 
     @Override
     public void loop() {
-        localizer.update();
-        Pose pose = localizer.pose();
-
-        // Field-centric mecanum from Game Manual 0
-        double y = -gamepad1.left_stick_y; // Remember, this is reversed!
-        double x = gamepad1.left_stick_x * 1.5; // Counteract imperfect strafing
-        double rx = gamepad1.right_stick_x;
-
         // Pinpoint heading is a field angle. Red's driver looks along heading 90, blue's along 270
         double driverForward = Math.toRadians(isRed ? 90 : 270);
-        double botHeading = pose.heading() - driverForward;
-        double rotX = x * Math.cos(-botHeading) - y * Math.sin(-botHeading);
-        double rotY = x * Math.sin(-botHeading) + y * Math.cos(-botHeading);
+        DrivePowers powers = ManualDrive.fieldCentric(
+                -gamepad1.left_stick_y,
+                -gamepad1.left_stick_x,
+                -gamepad1.right_stick_x,
+                drivetrain.pose().heading() - driverForward);
 
-        double frontLeftPower = rotY + rotX + rx;
-        double backLeftPower = rotY - rotX + rx;
-        double frontRightPower = rotY - rotX - rx;
-        double backRightPower = rotY + rotX - rx;
-
-        double max = Math.max(
-                Math.max(Math.abs(frontLeftPower), Math.abs(backLeftPower)),
-                Math.max(Math.abs(frontRightPower), Math.abs(backRightPower)));
-        if (max > 1) {
-            frontLeftPower /= max;
-            backLeftPower /= max;
-            frontRightPower /= max;
-            backRightPower /= max;
-        }
-
-        fl.setPower(frontLeftPower);
-        bl.setPower(backLeftPower);
-        fr.setPower(frontRightPower);
-        br.setPower(backRightPower);
+        drivetrain.drive(powers);
 
         if (gamepad1.rightBumperWasPressed()) {
             intake.transfer().schedule();
@@ -106,11 +72,12 @@ public abstract class AllianceTeleOp extends OpMode {
             shooter.off();
         }
 
-        shooter.update(pose, isRed);
+        drivetrain.update();
+        shooter.update(drivetrain.pose(), isRed);
         intake.update();
         Scheduler.execute();
 
-        telemetry.addData("Pose", pose);
+        telemetry.addData("Pose", drivetrain.pose());
         shooter.addTelemetry(telemetry);
         telemetry.addData("loop ms", loopTimer.milliseconds());
         loopTimer.reset();
