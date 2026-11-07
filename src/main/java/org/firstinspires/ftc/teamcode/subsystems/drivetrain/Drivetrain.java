@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.subsystems.drivetrain;
 
+import com.pedropathing.drivetrain.DrivePowers;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.math.Pose;
 import com.pedropathing.paths.Path;
@@ -23,6 +24,10 @@ public class Drivetrain {
 
     public void drive(double forward, double strafe, double turn) {
         follower.manual(forward, strafe, turn);
+    }
+
+    public void drive(DrivePowers powers) {
+        follower.manual(powers);
     }
 
     public void follow(Path path) {
