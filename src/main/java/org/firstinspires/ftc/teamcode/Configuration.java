@@ -32,8 +32,8 @@ public class Configuration {
     public static final MotorConfig FRONT_RIGHT_MOTOR = new MotorConfig("fr", Direction.REVERSE);
     public static final MotorConfig BACK_RIGHT_MOTOR = new MotorConfig("br", Direction.REVERSE);
 
-    public static final MotorConfig FRONT_INTAKE_MOTOR = new MotorConfig("fi", Direction.REVERSE);
-    public static final MotorConfig BACK_INTAKE_MOTOR = new MotorConfig("bi", Direction.FORWARD);
+    public static final MotorConfig FRONT_INTAKE_MOTOR = new MotorConfig("fi", Direction.FORWARD);
+    public static final MotorConfig BACK_INTAKE_MOTOR = new MotorConfig("bi", Direction.REVERSE);
 
     // Servo Hub
     public static final ServoConfig TRANSFER_SERVO = new ServoConfig("t");
