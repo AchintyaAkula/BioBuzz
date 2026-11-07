@@ -8,6 +8,7 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import org.firstinspires.ftc.teamcode.subsystems.intake.Intake;
 import org.firstinspires.ftc.teamcode.subsystems.shooter.Flywheel;
+import org.firstinspires.ftc.teamcode.subsystems.shooter.Turret;
 import org.firstinspires.ftc.teamcode.util.VelPIDController;
 
 @Config
@@ -15,8 +16,11 @@ import org.firstinspires.ftc.teamcode.util.VelPIDController;
 public class IntakeShooterTest extends OpMode {
     private Intake intake = new Intake();
     private Flywheel flywheel = new Flywheel();
+    private Turret turret = new Turret();
 
     public static double target = 0.0;
+    // Fixed turret angle (deg, 0 = forward). No aiming, it just holds this
+    public static double turretAngle = 0.0;
     public VelPIDController frontPID = new VelPIDController(0.0019, 0.06, 0.0004, 0);
     public VelPIDController backPID = new VelPIDController(0.0019, 0.06, 0.0004, 0);
 
@@ -26,6 +30,7 @@ public class IntakeShooterTest extends OpMode {
         Scheduler.reset();
         intake.init(hardwareMap);
         flywheel.init(hardwareMap);
+        turret.init(hardwareMap);
     }
 
     @Override
@@ -40,6 +45,13 @@ public class IntakeShooterTest extends OpMode {
             target -= 10;
         }
         flywheel.setTarget(target);
+
+        if (gamepad1.dpadRightWasPressed()) {
+            turretAngle += 5;
+        } else if (gamepad1.dpadLeftWasPressed()) {
+            turretAngle -= 5;
+        }
+        turret.setAngle(turretAngle);
 
         if (gamepad1.rightBumperWasPressed()) {
             intake.transfer().schedule();
@@ -56,9 +68,11 @@ public class IntakeShooterTest extends OpMode {
         }
 
         telemetry.addData("vel", flywheel.backFlywheel.getVelocity());
+        telemetry.addData("Turret Angle", turret.getAngle());
         telemetry.update();
 
         flywheel.update();
+        turret.update();
         intake.update();
         Scheduler.execute();
     }
