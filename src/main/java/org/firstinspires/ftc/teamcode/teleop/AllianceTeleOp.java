@@ -1,10 +1,9 @@
 package org.firstinspires.ftc.teamcode.teleop;
 
-import com.pedropathing.drivetrain.DrivePowers;
-import com.pedropathing.follower.Follower;
-import com.pedropathing.follower.ManualDrive;
 import com.pedropathing.ivy.Scheduler;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.hardware.DcMotor;
+
 import org.firstinspires.ftc.teamcode.subsystems.drivetrain.Drivetrain;
 import org.firstinspires.ftc.teamcode.subsystems.intake.Intake;
 import org.firstinspires.ftc.teamcode.subsystems.shooter.Shooter;
@@ -16,8 +15,7 @@ public abstract class AllianceTeleOp extends OpMode {
     private final Shooter shooter = new Shooter();
 
     private final boolean isRed;
-    private Follower follower;
-
+    DcMotor frontLeftMotor, frontRightMotor, backLeftMotor, backRightMotor;
     protected AllianceTeleOp(boolean isRed) {
         this.isRed = isRed;
     }
@@ -25,7 +23,10 @@ public abstract class AllianceTeleOp extends OpMode {
     @Override
     public void init() {
         Scheduler.reset();
-        drivetrain.init(hardwareMap);
+         frontLeftMotor = hardwareMap.dcMotor.get("fl");
+         backLeftMotor = hardwareMap.dcMotor.get("fr");
+         frontRightMotor = hardwareMap.dcMotor.get("bl");
+         backRightMotor = hardwareMap.dcMotor.get("br");
         intake.init(hardwareMap);
         shooter.init(hardwareMap);
     }
@@ -38,15 +39,24 @@ public abstract class AllianceTeleOp extends OpMode {
 
     @Override
     public void loop() {
-        DrivePowers powers = ManualDrive.fieldCentric(
-                -gamepad1.left_stick_y,
-                -gamepad1.left_stick_x,
-                -gamepad1.right_stick_x,
-                follower.pose().heading()
-        );
+        // Remember to reverse the right-side motors (or left-side depending on your build/chassis)
+        double y = -gamepad1.left_stick_y; // Remember, Y stick is reversed
+        double x = gamepad1.left_stick_x * 1.1; // Counteract imperfect strafing
+        double rx = gamepad1.right_stick_x;
 
-        follower.manual(powers);
-        follower.update();
+        // Denominator is the largest motor power (absolute value) or 1
+        // This ensures all powers maintain the same ratio, but no more than 1
+        double denominator = Math.max(Math.abs(y) + Math.abs(x) + Math.abs(rx), 1);
+        double frontLeftPower  = (y + x + rx) / denominator;
+        double backLeftPower   = (y - x + rx) / denominator;
+        double frontRightPower = (y - x - rx) / denominator;
+        double backRightPower  = (y + x - rx) / denominator;
+
+        frontLeftMotor.setPower(frontLeftPower);
+        backLeftMotor.setPower(backLeftPower);
+        frontRightMotor.setPower(frontRightPower);
+        backRightMotor.setPower(backRightPower);
+
 
 
         if (gamepad1.rightBumperWasPressed()) {
