@@ -80,17 +80,17 @@ public class Intake {
         state = IntakeState.TRANSFER;
         return Groups.sequential(
                         Commands.instant(transfer::engage),
-                        Commands.waitMs(200),
+                        Commands.waitMs(300),
                         Commands.instant(() -> {
                             if (this.state == IntakeState.BACK) {
-                                frontIntakeMotor.setPower(SLOW_INTAKE_POWER);
-                                backIntakeMotor.setPower(FAST_INTAKE_POWER);
+                                frontIntakeMotor.setPower(0.6);
+                                backIntakeMotor.setPower(0.8);
                             } else {
-                                frontIntakeMotor.setPower(FAST_INTAKE_POWER);
-                                backIntakeMotor.setPower(SLOW_INTAKE_POWER);
+                                frontIntakeMotor.setPower(0.8);
+                                backIntakeMotor.setPower(0.6);
                             }
                         }),
-                        Commands.waitMs(400),
+                        Commands.waitMs(1000),
                         Commands.instant(this::stop))
                 .requiring(this)
                 .setPriority(1);
