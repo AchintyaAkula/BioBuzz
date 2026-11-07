@@ -19,14 +19,20 @@ public class Turret {
     private Servo turretServo;
     // Last chosen (commanded) angle. Doubles as the hysteresis state for picking a wrap side
     private double angDeg = 0.0;
+    private boolean aiming = true;
 
     public void init(HardwareMap hwMap) {
         turretServo = Configuration.TURRET_SERVO.createServo(hwMap);
     }
 
     public void update() {
+        turretServo.setPosition(getTargetPosition());
+    }
+
+    /** Servo position the turret is commanded to, 0..1. The servo does not report where it actually is. */
+    public double getTargetPosition() {
         double pos = turret0Pos + (turretDirection * angDeg / TURRET_ROM);
-        turretServo.setPosition(Math.max(0.0, Math.min(1.0, pos)));
+        return Math.max(0.0, Math.min(1.0, pos));
     }
 
     public void setAngle(double angDeg) {
@@ -45,7 +51,20 @@ public class Turret {
         return (TURRET_ROM / 2.0) - limitMarginDeg;
     }
 
+    public void toggleAiming() {
+        aiming = !aiming;
+    }
+
+    public boolean isAiming() {
+        return aiming;
+    }
+
     public void aimAt(Pose robot, Pose target) {
+        if (!aiming) {
+            setAngle(0.0);
+            return;
+        }
+
         double fieldAngDeg = Math.toDegrees(Math.atan2(target.y() - robot.y(), target.x() - robot.x()));
         double robotAngDeg = fieldAngDeg - Math.toDegrees(robot.heading());
         setAngle(pickCandidate(robotAngDeg));
@@ -82,4 +101,5 @@ public class Turret {
     public static double normalize(double angDeg) {
         return angDeg - (360.0 * Math.floor((angDeg + 180.0) / 360.0));
     }
+
 }

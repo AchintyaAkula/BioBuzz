@@ -20,6 +20,17 @@ public class Shooter {
     }
 
     public void update(Pose pose, boolean isRed) {
+        updateAimTarget(pose, isRed);
+        run(pose, ShooterInterpolation.returnVelocity(pose, aimTarget));
+    }
+
+    /** Same as update, but holds a fixed flywheel velocity (rad/s) instead of using the distance table. */
+    public void update(Pose pose, boolean isRed, double velocity) {
+        updateAimTarget(pose, isRed);
+        run(pose, velocity);
+    }
+
+    private void updateAimTarget(Pose pose, boolean isRed) {
         // Keep current target inside dead zone, so aim and speed do not jump at the switch line
         if (pose.y() < TARGET_SWITCH_Y - TARGET_SWITCH_DEADBAND) {
             lowY = true;
@@ -27,8 +38,10 @@ public class Shooter {
             lowY = false;
         }
         aimTarget = ShooterInterpolation.shooterTarget(isRed, lowY);
+    }
 
-        flywheel.setTarget(ShooterInterpolation.returnVelocity(pose, aimTarget));
+    private void run(Pose pose, double velocity) {
+        flywheel.setTarget(velocity);
         flywheel.update();
 
         turret.aimAt(pose, aimTarget);
@@ -48,6 +61,11 @@ public class Shooter {
         telemetry.addData("Flywheel Front Velocity", flywheel.getFrontVelocity());
         telemetry.addData("Flywheel Back Velocity", flywheel.getBackVelocity());
         telemetry.addData("Turret Angle", turret.getAngle());
+        telemetry.addData("Turret Servo Target", turret.getTargetPosition());
         telemetry.addData("Aim Target", aimTarget);
+    }
+
+    public void toggleTurret() {
+        turret.toggleAiming();
     }
 }

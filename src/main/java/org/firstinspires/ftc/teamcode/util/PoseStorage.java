@@ -9,8 +9,8 @@ import com.pedropathing.math.Pose;
  * auto stopped (not the last path target).
  */
 public final class PoseStorage {
-    /** Teleop start pose when no auto ran. */
-    public static final Pose DEFAULT_POSE = new Pose(72, 72, Math.toRadians(90));
+    /** Teleop start pose when no auto ran, with the front of the robot facing the field center. */
+    public static final Pose DEFAULT_POSE = new Pose(72, 12, Math.toRadians(90));
 
     private static Pose autoEndPose = null;
 

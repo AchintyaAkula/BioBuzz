@@ -19,11 +19,13 @@ public class Intake {
         EJECT
     }
 
-    private static final double FAST_INTAKE_POWER = 1.0;
-    private static final double SLOW_INTAKE_POWER = 0.8;
-    private static final double PASSIVE_INTAKE_POWER = -0.6;
-    private static final double EJECT_INTAKE_POWER = -0.7;
+    private static final double FAST_INTAKE_POWER = -1.0;
+    private static final double SLOW_INTAKE_POWER = -0.8;
+    private static final double PASSIVE_INTAKE_POWER = 0.6;
+    private static final double EJECT_INTAKE_POWER = 0.7;
     private static final double INTAKE_STALL_CURRENT_MA = 3000.0;
+    private static final double TRANSFER_FRONT_POWER = -0.8;
+    private static final double TRANSFER_BACK_POWER = -0.6;
 
     private final IntakeClutch clutch = new IntakeClutch();
     private final TransferClutch transfer = new TransferClutch();
@@ -79,60 +81,18 @@ public class Intake {
     }
 
     public Command transfer() {
-//        boolean wasFront = state == IntakeState.FRONT;
         state = IntakeState.TRANSFER;
         return Groups.sequential(
-                Commands.instant(transfer::engage),
-                Commands.waitMs(350),
-                Commands.instant(() -> {
-                    frontIntakeMotor.setPower(0.8);
-                    backIntakeMotor.setPower(0.5);
-                }),
-                        Commands.waitMs(350),
+                        Commands.instant(transfer::engage),
+                        Commands.waitMs(300),
                         Commands.instant(() -> {
-                            frontIntakeMotor.setPower(0.5);
-                            backIntakeMotor.setPower(0.8);
+                            frontIntakeMotor.setPower(TRANSFER_FRONT_POWER);
+                            backIntakeMotor.setPower(TRANSFER_BACK_POWER);
                         }),
-                        Commands.waitMs(800),
+                        Commands.waitMs(1000),
                         Commands.instant(this::stop))
                 .requiring(this)
                 .setPriority(1);
-
-//        if (!wasFront) {
-//            return Groups.sequential(
-//                            Commands.instant(transfer::engage),
-//                            Commands.waitMs(350),
-//                            Commands.instant(() -> {
-//                                frontIntakeMotor.setPower(0.5);
-//                                backIntakeMotor.setPower(0.8);
-//                            }),
-//                            Commands.waitMs(350),
-//                            Commands.instant(() -> {
-//                                frontIntakeMotor.setPower(0.8);
-//                                backIntakeMotor.setPower(0.5);
-//                            }),
-//                            Commands.waitMs(800),
-//                            Commands.instant(this::stop))
-//                    .requiring(this)
-//                    .setPriority(1);
-//        } else {
-//            return Groups.sequential(
-//                            Commands.instant(transfer::engage),
-//                            Commands.waitMs(350),
-//                            Commands.instant(() -> {
-//                                frontIntakeMotor.setPower(0.8);
-//                                backIntakeMotor.setPower(0.5);
-//                            }),
-//                            Commands.waitMs(350),
-//                            Commands.instant(() -> {
-//                                frontIntakeMotor.setPower(0.5);
-//                                backIntakeMotor.setPower(0.8);
-//                            }),
-//                            Commands.waitMs(800),
-//                            Commands.instant(this::stop))
-//                    .requiring(this)
-//                    .setPriority(1);
-//        }
     }
 
     public void stop() {

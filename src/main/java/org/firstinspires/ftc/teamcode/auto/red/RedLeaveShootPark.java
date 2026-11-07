@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.auto.red;
 import static com.pedropathing.api.Paths.line;
 
 import com.pedropathing.api.PoseFactory;
+import com.pedropathing.ivy.Scheduler;
 import com.pedropathing.math.Pose;
 import com.pedropathing.paths.Path;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
@@ -28,7 +29,6 @@ public class RedLeaveShootPark extends OpMode {
     private static final boolean IS_RED = true;
 
     private static final double SPIN_UP_SEC = 2.0;
-    private static final double RUN_TRANSFER_SEC = 3.0;
 
     private final PoseFactory p = PoseFactory.degrees();
 
@@ -58,6 +58,7 @@ public class RedLeaveShootPark extends OpMode {
 
     @Override
     public void init() {
+        Scheduler.reset();
         drivetrain.initAuto(hardwareMap);
         intake.init(hardwareMap);
         shooter.init(hardwareMap);
@@ -78,6 +79,7 @@ public class RedLeaveShootPark extends OpMode {
         autonomousUpdate();
 
         intake.update();
+        Scheduler.execute();
         shooter.update(drivetrain.pose(), IS_RED);
 
         telemetry.addData("State", state);
@@ -101,13 +103,13 @@ public class RedLeaveShootPark extends OpMode {
 
             case SPIN_UP:
                 if (stateTimer.seconds() > SPIN_UP_SEC) {
-                    intake.startTransfer(RUN_TRANSFER_SEC);
+                    intake.transfer().schedule();
                     setState(State.TRANSFER);
                 }
                 break;
 
             case TRANSFER:
-                if (!intake.isTransferring()) {
+                if (intake.state != Intake.IntakeState.TRANSFER) {
                     drivetrain.follow(path2());
                     setState(State.PATH_2);
                 }

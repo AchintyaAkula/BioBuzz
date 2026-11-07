@@ -61,6 +61,8 @@ public class Flywheel {
     }
 
     private double wheelVolts(PIDController pid, double velocity, double ffVolts, double presentVoltage) {
+        // dashboard edits only reach the controllers through here
+        pid.setPID(kP, kI, kD);
         double pidVolts = pid.calculate(velocity, target);
         pidVolts = Math.max(-presentVoltage, Math.min(presentVoltage, pidVolts));
 
