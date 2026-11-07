@@ -1,10 +1,8 @@
 package org.firstinspires.ftc.teamcode.subsystems.intake;
 
-import com.pedropathing.ivy.Command;
-import com.pedropathing.ivy.commands.Commands;
-import com.pedropathing.ivy.groups.Groups;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 import org.firstinspires.ftc.teamcode.Configuration;
 
@@ -22,12 +20,19 @@ public class Intake {
     private static final double PASSIVE_INTAKE_POWER = -0.6;
     private static final double EJECT_INTAKE_POWER = -0.7;
     private static final double INTAKE_STALL_CURRENT_MA = 3000.0;
+    private static final double TRANSFER_ENGAGE_SEC = 0.2;
+    private static final double TRANSFER_RUN_SEC = 0.4;
 
     private final IntakeClutch clutch = new IntakeClutch();
     private final TransferClutch transfer = new TransferClutch();
+    private final ElapsedTime transferTimer = new ElapsedTime();
 
     private DcMotorEx frontIntakeMotor;
     private DcMotorEx backIntakeMotor;
+
+    private boolean lastIntakeBack = false;
+    private boolean transferMotorsOn = false;
+    private double transferRunSec = TRANSFER_RUN_SEC;
 
     public IntakeState state;
 
@@ -51,11 +56,14 @@ public class Intake {
             if (frontIntakeMotor.isOverCurrent()) {
                 frontIntakeMotor.setPower(0);
             }
+        } else if (state == IntakeState.TRANSFER) {
+            updateTransfer();
         }
     }
 
     public void frontIntake() {
         state = IntakeState.FRONT;
+        lastIntakeBack = false;
         transfer.disengage();
         clutch.engageFront();
         frontIntakeMotor.setPower(FAST_INTAKE_POWER);
@@ -64,10 +72,11 @@ public class Intake {
 
     public void backIntake() {
         state = IntakeState.BACK;
+        lastIntakeBack = true;
         transfer.disengage();
         clutch.engageBack();
-                    frontIntakeMotor.setPower(PASSIVE_INTAKE_POWER);
-                    backIntakeMotor.setPower(FAST_INTAKE_POWER);
+        frontIntakeMotor.setPower(PASSIVE_INTAKE_POWER);
+        backIntakeMotor.setPower(FAST_INTAKE_POWER);
     }
 
     public void eject() {
@@ -76,42 +85,43 @@ public class Intake {
         frontIntakeMotor.setPower(EJECT_INTAKE_POWER);
     }
 
-    public void engageTransfer() {
+    public void startTransfer() {
+        startTransfer(TRANSFER_RUN_SEC);
+    }
+
+    public void startTransfer(double runSec) {
+        if (isTransferring()) {
+            return;
+        }
         state = IntakeState.TRANSFER;
+        transferRunSec = runSec;
+        transferMotorsOn = false;
         transfer.engage();
+        transferTimer.reset();
     }
 
-    public void runTransfer() {
-        frontIntakeMotor.setPower(FAST_INTAKE_POWER);
-        backIntakeMotor.setPower(SLOW_INTAKE_POWER);
+    public boolean isTransferring() {
+        return state == IntakeState.TRANSFER;
     }
 
-    public Command transfer() {
-        state = IntakeState.TRANSFER;
-        return Groups.sequential(
-                        Commands.instant(transfer::engage),
-                        Commands.waitMs(200),
-                        Commands.instant(() -> {
-                            if (this.state == IntakeState.BACK) {
-                                frontIntakeMotor.setPower(SLOW_INTAKE_POWER);
-                                backIntakeMotor.setPower(FAST_INTAKE_POWER);
-                            } else {
-                                frontIntakeMotor.setPower(FAST_INTAKE_POWER);
-                                backIntakeMotor.setPower(SLOW_INTAKE_POWER);
-                            }
-                        }),
-                        Commands.waitMs(400),
-                        Commands.instant(this::stop))
-                .requiring(this)
-                .setPriority(1);
+    private void updateTransfer() {
+        if (!transferMotorsOn) {
+            if (transferTimer.seconds() > TRANSFER_ENGAGE_SEC) {
+                frontIntakeMotor.setPower(lastIntakeBack ? SLOW_INTAKE_POWER : FAST_INTAKE_POWER);
+                backIntakeMotor.setPower(lastIntakeBack ? FAST_INTAKE_POWER : SLOW_INTAKE_POWER);
+                transferMotorsOn = true;
+                transferTimer.reset();
+            }
+        } else if (transferTimer.seconds() > transferRunSec) {
+            stop();
+        }
     }
 
     public void stop() {
         state = IntakeState.STOPPED;
         transfer.disengage();
-                    frontIntakeMotor.setPower(0);
-                    backIntakeMotor.setPower(0);
-                    clutch.release();
-
+        frontIntakeMotor.setPower(0);
+        backIntakeMotor.setPower(0);
+        clutch.release();
     }
 }

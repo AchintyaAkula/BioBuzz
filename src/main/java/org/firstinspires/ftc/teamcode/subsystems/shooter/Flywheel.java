@@ -14,6 +14,8 @@ public class Flywheel {
 
     private boolean on = false;
     private double target = 0.0;
+    private double frontVelocity = 0.0;
+    private double backVelocity = 0.0;
 
     public void init(HardwareMap hwMap) {
         frontFlywheel = Configuration.FRONT_FLYWHEEL_MOTOR.createMotor(hwMap);
@@ -21,16 +23,23 @@ public class Flywheel {
     }
 
     public void update() {
+        frontVelocity = frontFlywheel.getVelocity();
+        backVelocity = backFlywheel.getVelocity();
+
         frontPID.setTarget(target);
         backPID.setTarget(target);
         if (on) {
-            frontFlywheel.setPower(frontPID.calculate(frontFlywheel.getVelocity()));
-            backFlywheel.setPower(backPID.calculate(backFlywheel.getVelocity()));
+            frontFlywheel.setPower(frontPID.calculate(frontVelocity));
+            backFlywheel.setPower(backPID.calculate(backVelocity));
         }
     }
 
     public void togglePower() {
-        on = !on;
+        if (on) {
+            off();
+        } else {
+            on();
+        }
     }
 
     public void on() {
@@ -45,5 +54,17 @@ public class Flywheel {
 
     public void setTarget(double target) {
         this.target = target;
+    }
+
+    public double getTarget() {
+        return target;
+    }
+
+    public double getFrontVelocity() {
+        return frontVelocity;
+    }
+
+    public double getBackVelocity() {
+        return backVelocity;
     }
 }

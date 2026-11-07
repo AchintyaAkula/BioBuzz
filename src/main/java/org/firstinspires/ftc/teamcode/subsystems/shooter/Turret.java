@@ -1,14 +1,18 @@
 package org.firstinspires.ftc.teamcode.subsystems.shooter;
 
+import com.acmerobotics.dashboard.config.Config;
 import com.pedropathing.math.Pose;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 import org.firstinspires.ftc.teamcode.Configuration;
 
+@Config
 public class Turret {
     private static final double TURRET_ROM = 540.0;
     private static final double TURRET_MAX_ANG = TURRET_ROM / 2.0;
-    private static final double TURRET_0_POS = 0.5;
+
+    public static double turret0Pos = 0.5;
+    public static double turretDirection = 1.0; // 1.0 or -1.0
 
     private Servo turretServo;
     private double angDeg = 0.0;
@@ -18,11 +22,15 @@ public class Turret {
     }
 
     public void update() {
-        turretServo.setPosition(TURRET_0_POS + (angDeg / TURRET_ROM));
+        turretServo.setPosition(turret0Pos + (turretDirection * angDeg / TURRET_ROM));
     }
 
     public void setAngle(double angDeg) {
         this.angDeg = angDeg;
+    }
+
+    public double getAngle() {
+        return angDeg;
     }
 
     public void aimAt(Pose robot, Pose target) {

@@ -19,8 +19,7 @@ public class BlueLeaveShootPark extends OpMode {
         START,
         PATH_1,
         SPIN_UP,
-        ENGAGE_TRANSFER,
-        RUN_TRANSFER,
+        TRANSFER,
         PATH_2,
         PATH_3,
         DONE
@@ -29,7 +28,6 @@ public class BlueLeaveShootPark extends OpMode {
     private static final boolean IS_RED = false;
 
     private static final double SPIN_UP_SEC = 2.0;
-    private static final double ENGAGE_TRANSFER_SEC = 0.2;
     private static final double RUN_TRANSFER_SEC = 3.0;
 
     private final PoseFactory p = PoseFactory.degrees();
@@ -84,6 +82,7 @@ public class BlueLeaveShootPark extends OpMode {
 
         telemetry.addData("State", state);
         telemetry.addData("Pose", drivetrain.pose());
+        shooter.addTelemetry(telemetry);
         telemetry.update();
     }
 
@@ -102,21 +101,13 @@ public class BlueLeaveShootPark extends OpMode {
 
             case SPIN_UP:
                 if (stateTimer.seconds() > SPIN_UP_SEC) {
-                    intake.engageTransfer();
-                    setState(State.ENGAGE_TRANSFER);
+                    intake.startTransfer(RUN_TRANSFER_SEC);
+                    setState(State.TRANSFER);
                 }
                 break;
 
-            case ENGAGE_TRANSFER:
-                if (stateTimer.seconds() > ENGAGE_TRANSFER_SEC) {
-                    intake.runTransfer();
-                    setState(State.RUN_TRANSFER);
-                }
-                break;
-
-            case RUN_TRANSFER:
-                if (stateTimer.seconds() > RUN_TRANSFER_SEC) {
-                    intake.stop();
+            case TRANSFER:
+                if (!intake.isTransferring()) {
                     drivetrain.follow(path2());
                     setState(State.PATH_2);
                 }
