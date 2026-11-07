@@ -94,11 +94,6 @@ public class Intake {
 
         state = IntakeState.TRANSFER;
         return Groups.sequential(
-                // otherwise intake power keeps feeding balls while the clutches close
-                Commands.instant(() -> {
-                    frontIntakeMotor.setPower(0);
-                    backIntakeMotor.setPower(0);
-                }),
                 Commands.instant(clutch::engageBoth),
                 Commands.instant(transfer::engage),
                 Commands.waitMs(300),
