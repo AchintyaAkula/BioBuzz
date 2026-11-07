@@ -40,7 +40,7 @@ public abstract class AllianceTeleOp extends OpMode {
     @Override
     public void start() {
         // Pinpoint resets during init, so a pose set there can be lost
-        localizer.setPose(PoseStorage.take());
+        localizer.setPose(PoseStorage.take(isRed));
         localizer.update();
     }
 

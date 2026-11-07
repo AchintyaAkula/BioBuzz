@@ -9,8 +9,9 @@ import com.pedropathing.math.Pose;
  * auto stopped (not the last path target).
  */
 public final class PoseStorage {
-    /** Teleop start pose when no auto ran. */
-    public static final Pose DEFAULT_POSE = new Pose(72, 72, Math.toRadians(90));
+    /** Teleop start poses when no auto ran, with the robot facing away from its driver. */
+    public static final Pose RED_DEFAULT_POSE = new Pose(72, 72, Math.toRadians(90));
+    public static final Pose BLUE_DEFAULT_POSE = new Pose(72, 72, Math.toRadians(270));
 
     private static Pose autoEndPose = null;
 
@@ -20,9 +21,10 @@ public final class PoseStorage {
         autoEndPose = pose;
     }
 
-    /** Returns the saved auto end pose (or DEFAULT_POSE) and clears it, so a later teleop without auto uses the default. */
-    public static Pose take() {
-        Pose pose = autoEndPose != null ? autoEndPose : DEFAULT_POSE;
+    /** Returns the saved auto end pose (or the alliance default) and clears it, so a later teleop without auto uses the default. */
+    public static Pose take(boolean isRed) {
+        Pose defaultPose = isRed ? RED_DEFAULT_POSE : BLUE_DEFAULT_POSE;
+        Pose pose = autoEndPose != null ? autoEndPose : defaultPose;
         autoEndPose = null;
         return pose;
     }
