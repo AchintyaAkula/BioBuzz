@@ -54,7 +54,9 @@ public abstract class AllianceTeleOp extends OpMode {
         double x = gamepad1.left_stick_x * 1.5; // Counteract imperfect strafing
         double rx = gamepad1.right_stick_x;
 
-        double botHeading = pose.heading();
+        // Pinpoint heading is a field angle. Red's driver looks along heading 90, blue's along 270
+        double driverForward = Math.toRadians(isRed ? 90 : 270);
+        double botHeading = pose.heading() - driverForward;
         double rotX = x * Math.cos(-botHeading) - y * Math.sin(-botHeading);
         double rotY = x * Math.sin(-botHeading) + y * Math.cos(-botHeading);
 
