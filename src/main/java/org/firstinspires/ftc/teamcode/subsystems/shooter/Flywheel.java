@@ -33,6 +33,16 @@ public class Flywheel {
         on = !on;
     }
 
+    public void on() {
+        on = true;
+    }
+
+    public void off() {
+        on = false;
+        frontFlywheel.setPower(0);
+        backFlywheel.setPower(0);
+    }
+
     public void setTarget(double target) {
         this.target = target;
     }
