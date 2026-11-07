@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.subsystems.shooter;
 
+import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import org.firstinspires.ftc.teamcode.Configuration;
@@ -13,14 +14,17 @@ public class Flywheel {
     public DcMotorEx frontFlywheel;
     public DcMotorEx backFlywheel;
 
-    // not pid, js p
-    public static double kV = 0.00056;
-    public static double kS = 0.06;
-    public static double kP = 0.0019;
-    public static double kI = 0.0;
-    public static double kD = 0.0;
+    public static final double TICKS_TO_RAD = 2 * Math.PI / 28;
 
-    public static double nominalVoltage = 12.0;
+    // not pid, js p
+    // volts and rad/s, same units as ShooterMove
+    // @akula @lingala @ big c @ varen a. sarda
+    // lets add some shooting while moving
+    public static double kV = 0.02;
+    public static double kS = 0.8;
+    public static double kP = 0.28;
+    public static double kI = 0.05;
+    public static double kD = 0.0001;
 
     private boolean on = false;
     private double target = 0.0;
@@ -36,28 +40,31 @@ public class Flywheel {
     public void init(HardwareMap hwMap) {
         frontFlywheel = Configuration.FRONT_FLYWHEEL_MOTOR.createMotor(hwMap);
         backFlywheel = Configuration.BACK_FLYWHEEL_MOTOR.createMotor(hwMap);
+        frontFlywheel.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        backFlywheel.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         voltageSensor = hwMap.voltageSensor.iterator().next();
     }
 
 
     public void update() {
-        frontVelocity = frontFlywheel.getVelocity();
-        backVelocity = backFlywheel.getVelocity();
-
-        frontVelocity = frontFlywheel.getVelocity();
-        backVelocity = backFlywheel.getVelocity();
-
+        frontVelocity = frontFlywheel.getVelocity() * TICKS_TO_RAD;
+        backVelocity = backFlywheel.getVelocity() * TICKS_TO_RAD;
 
         if (on) {
-            double voltComp = nominalVoltage / voltageSensor.getVoltage();
-            double ff = kV*target+kS*Math.signum(target);
+            double presentVoltage = voltageSensor.getVoltage();
+            double ffVolts = kV*target+kS*Math.signum(target);
 
-            double frontPow = (frontPID.calculate(frontVelocity, target) + ff) * voltComp;
-            double backPow = (backPID.calculate(backVelocity, target) + ff) * voltComp;
-
-            frontFlywheel.setPower(Math.max(-1.0, Math.min(1.0, frontPow)));
-            backFlywheel.setPower(Math.max(-1.0, Math.min(1.0, backPow)));
+            // separate wheels, so each motor runs its own loop off its own encoder
+            frontFlywheel.setPower(wheelVolts(frontPID, frontVelocity, ffVolts, presentVoltage) / presentVoltage);
+            backFlywheel.setPower(wheelVolts(backPID, backVelocity, ffVolts, presentVoltage) / presentVoltage);
         }
+    }
+
+    private double wheelVolts(PIDController pid, double velocity, double ffVolts, double presentVoltage) {
+        double pidVolts = pid.calculate(velocity, target);
+        pidVolts = Math.max(-presentVoltage, Math.min(presentVoltage, pidVolts));
+
+        return Math.max(-presentVoltage, Math.min(presentVoltage, pidVolts + ffVolts));
     }
 
     public void togglePower() {

@@ -39,7 +39,8 @@ public class ShooterInterpolation {
         return new Pose(targetX, targetY);
     }
 
+    // table is ticks/sec, flywheel wants rad/s
     public static double returnVelocity(Pose pose, Pose target) {
-        return shooterSpeed.get(target.distance(pose));
+        return shooterSpeed.get(target.distance(pose)) * Flywheel.TICKS_TO_RAD;
     }
 }

@@ -6,9 +6,9 @@ import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.pedropathing.ivy.Scheduler;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+
 import org.firstinspires.ftc.teamcode.subsystems.intake.Intake;
 import org.firstinspires.ftc.teamcode.subsystems.shooter.Flywheel;
-import org.firstinspires.ftc.teamcode.util.VelPIDController;
 
 @Config
 @TeleOp(name = "Intake Shooter Test")
@@ -16,9 +16,8 @@ public class IntakeShooterTest extends OpMode {
     private Intake intake = new Intake();
     private Flywheel flywheel = new Flywheel();
 
+    // rad/s
     public static double target = 0.0;
-    public VelPIDController frontPID = new VelPIDController(0.0019, 0.06, 0.0004, 0);
-    public VelPIDController backPID = new VelPIDController(0.0019, 0.06, 0.0004, 0);
 
     @Override
     public void init() {
@@ -55,11 +54,15 @@ public class IntakeShooterTest extends OpMode {
             intake.stop();
         }
 
-        telemetry.addData("vel", flywheel.backFlywheel.getVelocity());
-        telemetry.update();
-
         flywheel.update();
         intake.update();
         Scheduler.execute();
+
+        telemetry.addData("target", flywheel.getTarget());
+        telemetry.addData("front vel", flywheel.getFrontVelocity());
+        telemetry.addData("back vel", flywheel.getBackVelocity());
+        telemetry.addData("front error", flywheel.getTarget() - flywheel.getFrontVelocity());
+        telemetry.addData("back error", flywheel.getTarget() - flywheel.getBackVelocity());
+        telemetry.update();
     }
 }
