@@ -6,6 +6,7 @@ import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.pedropathing.ivy.Scheduler;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.subsystems.intake.Intake;
 import org.firstinspires.ftc.teamcode.subsystems.shooter.Flywheel;
@@ -17,6 +18,7 @@ public class IntakeShooterTest extends OpMode {
     private Intake intake = new Intake();
     private Flywheel flywheel = new Flywheel();
     private Turret turret = new Turret();
+    private final ElapsedTime loopTimer = new ElapsedTime();
 
     // rad/s
     public static double target = 0.0;
@@ -77,6 +79,8 @@ public class IntakeShooterTest extends OpMode {
         telemetry.addData("front error", flywheel.getTarget() - flywheel.getFrontVelocity());
         telemetry.addData("back error", flywheel.getTarget() - flywheel.getBackVelocity());
         telemetry.addData("Turret Angle", turret.getAngle());
+        telemetry.addData("loop ms", loopTimer.milliseconds());
+        loopTimer.reset();
         telemetry.update();
     }
 }

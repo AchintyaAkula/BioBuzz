@@ -6,6 +6,7 @@ import com.pedropathing.revhub.localizers.PinpointLocalizer;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.teamcode.pedro.Constants;
 import org.firstinspires.ftc.teamcode.subsystems.intake.Intake;
 import org.firstinspires.ftc.teamcode.subsystems.shooter.Shooter;
@@ -16,6 +17,7 @@ public abstract class AllianceTeleOp extends OpMode {
     private PinpointLocalizer localizer;
     private final Intake intake = new Intake();
     private final Shooter shooter = new Shooter();
+    private final ElapsedTime loopTimer = new ElapsedTime();
 
     private final boolean isRed;
 
@@ -106,6 +108,8 @@ public abstract class AllianceTeleOp extends OpMode {
 
         telemetry.addData("Pose", pose);
         shooter.addTelemetry(telemetry);
+        telemetry.addData("loop ms", loopTimer.milliseconds());
+        loopTimer.reset();
         telemetry.update();
     }
 }
