@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.teleop;
 import com.pedropathing.ivy.Scheduler;
 import com.pedropathing.math.Pose;
 import com.pedropathing.revhub.localizers.PinpointLocalizer;
+import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
@@ -28,6 +29,9 @@ public abstract class AllianceTeleOp extends OpMode {
     @Override
     public void init() {
         Scheduler.reset();
+        for (LynxModule hub : hardwareMap.getAll(LynxModule.class)) {
+            hub.setBulkCachingMode(LynxModule.BulkCachingMode.AUTO);
+        }
         fl = hardwareMap.get(DcMotorEx.class, "fl");
         bl = hardwareMap.get(DcMotorEx.class, "bl");
         fr = hardwareMap.get(DcMotorEx.class, "fr");
