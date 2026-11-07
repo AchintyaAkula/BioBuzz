@@ -1,15 +1,13 @@
 package org.firstinspires.ftc.teamcode.teleop;
 
 import com.pedropathing.ivy.Scheduler;
-import com.pedropathing.math.Pose;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import org.firstinspires.ftc.teamcode.subsystems.drivetrain.Drivetrain;
 import org.firstinspires.ftc.teamcode.subsystems.intake.Intake;
 import org.firstinspires.ftc.teamcode.subsystems.shooter.Shooter;
+import org.firstinspires.ftc.teamcode.util.PoseStorage;
 
 public abstract class AllianceTeleOp extends OpMode {
-    private static final Pose START_POSE = new Pose(72, 72, 0);
-
     private final Drivetrain drivetrain = new Drivetrain();
     private final Intake intake = new Intake();
     private final Shooter shooter = new Shooter();
@@ -31,7 +29,7 @@ public abstract class AllianceTeleOp extends OpMode {
     @Override
     public void start() {
         // Pinpoint resets during init, so a pose set there can be lost
-        drivetrain.setPose(START_POSE);
+        drivetrain.setPose(PoseStorage.take());
     }
 
     @Override

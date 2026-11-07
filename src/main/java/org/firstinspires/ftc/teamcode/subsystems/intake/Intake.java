@@ -76,6 +76,16 @@ public class Intake {
         frontIntakeMotor.setPower(EJECT_INTAKE_POWER);
     }
 
+    public void engageTransfer() {
+        state = IntakeState.TRANSFER;
+        transfer.engage();
+    }
+
+    public void runTransfer() {
+        frontIntakeMotor.setPower(FAST_INTAKE_POWER);
+        backIntakeMotor.setPower(SLOW_INTAKE_POWER);
+    }
+
     public Command transfer() {
         state = IntakeState.TRANSFER;
         return Groups.sequential(
