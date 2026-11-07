@@ -10,6 +10,8 @@ import org.firstinspires.ftc.teamcode.subsystems.shooter.Shooter;
 import org.firstinspires.ftc.teamcode.util.PoseStorage;
 
 public abstract class AllianceTeleOp extends OpMode {
+    private static final double FLYWHEEL_VELOCITY = 283.0; // rad/s
+
     private final Drivetrain drivetrain = new Drivetrain();
     private final Intake intake = new Intake();
     private final Shooter shooter = new Shooter();
@@ -36,6 +38,7 @@ public abstract class AllianceTeleOp extends OpMode {
     public void start() {
         // Pinpoint resets during init, so a pose set there can be lost
         drivetrain.setPose(PoseStorage.take());
+        shooter.on();
     }
 
     @Override
@@ -56,14 +59,8 @@ public abstract class AllianceTeleOp extends OpMode {
             }
         }
 
-        if (gamepad1.leftBumperWasPressed()) {
-            shooter.on();
-        } else if (gamepad1.leftBumperWasReleased()) {
-            shooter.off();
-        }
-
         drivetrain.update();
-        shooter.update(drivetrain.pose(), isRed);
+        shooter.update(drivetrain.pose(), isRed, FLYWHEEL_VELOCITY);
         intake.update();
         Scheduler.execute();
 
