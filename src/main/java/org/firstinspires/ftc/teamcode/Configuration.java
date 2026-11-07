@@ -5,7 +5,9 @@ import com.qualcomm.hardware.gobilda.GoBildaPinpointDriver.GoBildaOdometryPods;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple.Direction;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.PwmControl;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.hardware.ServoImplEx;
 
 @SuppressWarnings("unused")
 public class Configuration {
@@ -14,7 +16,9 @@ public class Configuration {
     public static final MotorConfig BACK_LEFT_MOTOR = new MotorConfig("bl", Direction.FORWARD);
 
     public static final MotorConfig FRONT_FLYWHEEL_MOTOR = new MotorConfig("fwf", Direction.REVERSE);
-    public static final MotorConfig BACK_FLYWHEEL_MOTOR = new MotorConfig("fwb", Direction.REVERSE);
+    public static final MotorConfig BACK_FLYWHEEL_MOTOR = new MotorConfig("fwb", Direction.FORWARD);
+
+    public static final ServoConfig TURRET_SERVO = new ServoConfig("turret");
 
     public static final PinpointConfig PINPOINT = new PinpointConfig(
             "pinpoint",
@@ -56,13 +60,22 @@ public class Configuration {
 
     public static class ServoConfig {
         public String name;
+        public PwmControl.PwmRange range;
+
+        public ServoConfig(String name, PwmControl.PwmRange range) {
+            this.name = name;
+            this.range = range;
+        }
 
         public ServoConfig(String name) {
-            this.name = name;
+            this(name, new PwmControl.PwmRange(500, 2500));
         }
 
         public Servo createServo(HardwareMap hwMap) {
-            return hwMap.get(Servo.class, name);
+            ServoImplEx s = hwMap.get(ServoImplEx.class, name);
+            s.setPwmRange(range);
+
+            return s;
         }
     }
 

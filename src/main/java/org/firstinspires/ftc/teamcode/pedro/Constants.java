@@ -12,6 +12,11 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.Configuration;
 
 public class Constants {
+    // Slow limits for autos, in inches and seconds
+    private static final double AUTO_MAX_VELOCITY = 20.0;
+    private static final double AUTO_MAX_ACCELERATION = 20.0;
+    private static final double AUTO_MAX_DECELERATION = 20.0;
+
     public static MecanumConfig drivetrainCfg = new MecanumConfig((c) -> {
         c.frontLeftName.set(Configuration.FRONT_LEFT_MOTOR.name);
         c.frontRightName.set(Configuration.FRONT_RIGHT_MOTOR.name);
@@ -38,12 +43,28 @@ public class Constants {
         c.offsetUnits.set(DistanceUnit.INCH);
     });
 
-    public static ForesightConfig foresightCfg = new ForesightConfig(c -> {
+    private static void configureForesight(ForesightConfig c) {
         // TODO add configuration after tuning
+    }
+
+    public static ForesightConfig foresightCfg = new ForesightConfig(Constants::configureForesight);
+
+    public static ForesightConfig autoForesightCfg = new ForesightConfig(c -> {
+        configureForesight(c);
+        c.maxVelocityConstraint.set(AUTO_MAX_VELOCITY);
+        c.maxAccelerationConstraint.set(AUTO_MAX_ACCELERATION);
+        c.maxDecelerationConstraint.set(AUTO_MAX_DECELERATION);
     });
 
     public static Follower create(HardwareMap hwM) {
         return new Follower(
                 new PinpointLocalizer(hwM, pinpointCfg), new Mecanum(hwM, drivetrainCfg), new Foresight(foresightCfg));
+    }
+
+    public static Follower createAuto(HardwareMap hwM) {
+        return new Follower(
+                new PinpointLocalizer(hwM, pinpointCfg),
+                new Mecanum(hwM, drivetrainCfg),
+                new Foresight(autoForesightCfg));
     }
 }

@@ -21,6 +21,7 @@ public class Tuners {
         return new PinpointTuner();
     }
 
+    @Tuner
     public static Procedure foresightTuner() {
         return new ForesightTuner(
                 (hwM) -> new PinpointLocalizer(hwM, Constants.pinpointCfg),

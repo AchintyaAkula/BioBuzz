@@ -1,28 +1,33 @@
 package org.firstinspires.ftc.teamcode.auto.blue;
 
-import static com.pedropathing.api.Paths.*;
+import static com.pedropathing.api.Paths.line;
 
 import com.pedropathing.api.PoseFactory;
-import com.pedropathing.follower.Follower;
 import com.pedropathing.math.Pose;
 import com.pedropathing.paths.Path;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
-
-import org.firstinspires.ftc.teamcode.pedro.Constants;
+import org.firstinspires.ftc.teamcode.subsystems.drivetrain.Drivetrain;
 import org.firstinspires.ftc.teamcode.util.PoseStorage;
 
 @Autonomous(name = "BlueLeavePark", group = "Blue")
 public class BlueLeavePark extends OpMode {
-
-    private Follower follower;
-    private int state = 0;
+    private enum State {
+        START,
+        LEAVE_PARK,
+        PATH_2,
+        DONE
+    }
 
     private final PoseFactory p = PoseFactory.degrees();
 
-    private final Pose start       = p.of(88, 136, 270);
-    private final Pose leavePark   = p.of(119.4161, 108.3831, 270);
-    private final Pose point2      = p.of(131.3569, 47.8362, 270);
+    private final Pose start = p.of(88, 136, 270);
+    private final Pose leavePark = p.of(119.4161, 108.3831, 270);
+    private final Pose point2 = p.of(131.3569, 47.8362, 270);
+
+    private final Drivetrain drivetrain = new Drivetrain();
+
+    private State state = State.START;
 
     private Path leaveParkPath() {
         return line(start, leavePark).linear(start, leavePark);
@@ -34,44 +39,45 @@ public class BlueLeavePark extends OpMode {
 
     @Override
     public void init() {
-        follower = Constants.create(hardwareMap);
-        follower.setPose(start);
+        drivetrain.initAuto(hardwareMap);
     }
 
     @Override
     public void start() {
-        state = 0;
+        // Pinpoint resets during init, so a pose set there can be lost
+        drivetrain.setPose(start);
     }
 
     @Override
     public void loop() {
-        follower.update();
-        PoseStorage.save(follower.pose()); // handoff to teleop: where the robot really is
+        drivetrain.update();
+        PoseStorage.save(drivetrain.pose());
 
         switch (state) {
-            case 0:
-                follower.follow(leaveParkPath());
-                state = 1;
+            case START:
+                drivetrain.follow(leaveParkPath());
+                state = State.LEAVE_PARK;
                 break;
 
-            case 1:
-                if (!follower.isBusy()) {
-                    follower.follow(path2());
-                    state = 2;
+            case LEAVE_PARK:
+                if (!drivetrain.isBusy()) {
+                    drivetrain.follow(path2());
+                    state = State.PATH_2;
                 }
                 break;
 
-            case 2:
-                if (!follower.isBusy()) {
-                    state = -1; // done
+            case PATH_2:
+                if (!drivetrain.isBusy()) {
+                    state = State.DONE;
                 }
+                break;
+
+            case DONE:
                 break;
         }
 
         telemetry.addData("State", state);
-        telemetry.addData("X", follower.pose().x());
-        telemetry.addData("Y", follower.pose().y());
-        telemetry.addData("Heading", Math.toDegrees(follower.pose().heading()));
+        telemetry.addData("Pose", drivetrain.pose());
         telemetry.update();
     }
 }

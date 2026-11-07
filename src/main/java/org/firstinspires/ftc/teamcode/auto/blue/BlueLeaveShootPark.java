@@ -3,37 +3,46 @@ package org.firstinspires.ftc.teamcode.auto.blue;
 import static com.pedropathing.api.Paths.line;
 
 import com.pedropathing.api.PoseFactory;
-import com.pedropathing.follower.Follower;
 import com.pedropathing.math.Pose;
 import com.pedropathing.paths.Path;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
-
-import org.firstinspires.ftc.teamcode.pedro.Constants;
+import org.firstinspires.ftc.teamcode.subsystems.drivetrain.Drivetrain;
+import org.firstinspires.ftc.teamcode.subsystems.intake.Intake;
+import org.firstinspires.ftc.teamcode.subsystems.shooter.Shooter;
 import org.firstinspires.ftc.teamcode.util.PoseStorage;
-import org.firstinspires.ftc.teamcode.subsystems.intake.IntakeSubsystem;
-import org.firstinspires.ftc.teamcode.subsystems.shooter.ShooterSubsystem;
-import org.firstinspires.ftc.teamcode.subsystems.shooter.turret.TurretSubsystem;
 
 @Autonomous(name = "BlueLeaveShootPark", group = "Blue")
 public class BlueLeaveShootPark extends OpMode {
+    private enum State {
+        START,
+        PATH_1,
+        SPIN_UP,
+        TRANSFER,
+        PATH_2,
+        PATH_3,
+        DONE
+    }
 
-    private Follower follower;
-    private final ElapsedTime stateTimer = new ElapsedTime();
-    private int state = 0;
+    private static final boolean IS_RED = false;
 
-    // Poses (x, y, heading in degrees)
+    private static final double SPIN_UP_SEC = 2.0;
+    private static final double RUN_TRANSFER_SEC = 3.0;
+
     private final PoseFactory p = PoseFactory.degrees();
 
-    private final Pose start  = p.of(88, 136, 270);
+    private final Pose start = p.of(88, 136, 270);
     private final Pose point1 = p.of(85.5003, 111.2751, 270);
     private final Pose point2 = p.of(121.1403, 102.6227, 270);
     private final Pose point3 = p.of(132.1232, 48.4747, 281.4658);
-    // Subsystems (created in init(), because hardwareMap is not ready before that)
-    private TurretSubsystem turret;
-    private ShooterSubsystem shooter;
-    private IntakeSubsystem intake;
+
+    private final Drivetrain drivetrain = new Drivetrain();
+    private final Intake intake = new Intake();
+    private final Shooter shooter = new Shooter();
+
+    private final ElapsedTime stateTimer = new ElapsedTime();
+    private State state = State.START;
 
     private Path path1() {
         return line(start, point1).linear(start, point1);
@@ -49,87 +58,81 @@ public class BlueLeaveShootPark extends OpMode {
 
     @Override
     public void init() {
-        follower = Constants.create(hardwareMap);
-        follower.setPose(start);
-        turret = new TurretSubsystem(hardwareMap);
-        shooter = new ShooterSubsystem(hardwareMap, telemetry);
-        intake = new IntakeSubsystem(hardwareMap, follower);
-        turret.initTurret(false, follower);
-        shooter.initShooter(false, follower);
-
-
+        drivetrain.initAuto(hardwareMap);
+        intake.init(hardwareMap);
+        shooter.init(hardwareMap);
     }
 
     @Override
     public void start() {
-        setState(0);
+        // Pinpoint resets during init, so a pose set there can be lost
+        drivetrain.setPose(start);
+        shooter.on();
     }
 
     @Override
     public void loop() {
-        follower.update();
-        PoseStorage.save(follower.pose()); // handoff to teleop: where the robot really is
-        autonomousUpdate();
-        intake.update();
-        turret.aimTurret();
-        shooter.runShooter(); // always on, power from current distance every loop
+        drivetrain.update();
+        PoseStorage.save(drivetrain.pose());
 
+        autonomousUpdate();
+
+        intake.update();
+        shooter.update(drivetrain.pose(), IS_RED);
 
         telemetry.addData("State", state);
-        telemetry.addData("X", follower.pose().x());
-        telemetry.addData("Y", follower.pose().y());
-        telemetry.addData("Heading", Math.toDegrees(follower.pose().heading()));
-        telemetry.addData("Follower Mode", follower.mode());
+        telemetry.addData("Pose", drivetrain.pose());
+        shooter.addTelemetry(telemetry);
         telemetry.update();
     }
 
     private void autonomousUpdate() {
         switch (state) {
-            case 0:
-
-                follower.follow(path1());
-                setState(1);
+            case START:
+                drivetrain.follow(path1());
+                setState(State.PATH_1);
                 break;
 
-            case 1:
-                if (!follower.isBusy()) {
-                    setState(2);
+            case PATH_1:
+                if (!drivetrain.isBusy()) {
+                    setState(State.SPIN_UP);
                 }
                 break;
 
-            case 2: // wait for the shooter to spin up, then start transfer
-                if (stateTimer.seconds() > 2) {
-                    intake.transferOn();
-                    setState(3);                       // resets stateTimer
+            case SPIN_UP:
+                if (stateTimer.seconds() > SPIN_UP_SEC) {
+                    intake.startTransfer(RUN_TRANSFER_SEC);
+                    setState(State.TRANSFER);
                 }
                 break;
 
-            case 3: // let transfer run, then drive path 2
-                if (stateTimer.seconds() > 3) {      // tune this number
-                    intake.intakeOff();
-                    follower.follow(path2());
-                    setState(4);
+            case TRANSFER:
+                if (!intake.isTransferring()) {
+                    drivetrain.follow(path2());
+                    setState(State.PATH_2);
                 }
                 break;
 
-            case 4: // path 2 finished -> path 3
-                if (!follower.isBusy()) {
-                    follower.follow(path3());
-                    setState(5);
+            case PATH_2:
+                if (!drivetrain.isBusy()) {
+                    drivetrain.follow(path3());
+                    setState(State.PATH_3);
                 }
                 break;
 
-            case 5: // path 3 finished
-                if (!follower.isBusy()) {
-                    setState(-1);
+            case PATH_3:
+                if (!drivetrain.isBusy()) {
+                    setState(State.DONE);
                 }
+                break;
+
+            case DONE:
                 break;
         }
     }
 
-
-    private void setState(int s) {
-        state = s;
+    private void setState(State newState) {
+        state = newState;
         stateTimer.reset();
     }
 }
