@@ -7,10 +7,9 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
-
 import org.firstinspires.ftc.teamcode.Configuration;
 
-//0.0004, 0.06,
+// 0.0004, 0.06,
 @Config
 @TeleOp()
 public class VelPIDTuner extends OpMode {
@@ -36,9 +35,7 @@ public class VelPIDTuner extends OpMode {
     public void loop() {
         double currentVel = motor.getVelocity();
         double error = target - currentVel;
-        double pow = kP * error
-                + kS * Math.signum(target)
-                + kV * target;
+        double pow = kP * error + kS * Math.signum(target) + kV * target;
 
         motor.setPower(pow);
 

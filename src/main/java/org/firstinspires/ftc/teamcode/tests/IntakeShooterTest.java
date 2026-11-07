@@ -17,7 +17,6 @@ public class IntakeShooterTest extends OpMode {
     public VelPIDController frontPID = new VelPIDController(0.0, 0.06, 0.0004, 0);
     public VelPIDController backPID = new VelPIDController(0.0, 0.06, 0.0004, 0);
 
-
     @Override
     public void init() {
         intake.init(hardwareMap);

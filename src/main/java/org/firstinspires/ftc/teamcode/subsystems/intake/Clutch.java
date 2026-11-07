@@ -19,18 +19,18 @@ class IntakeClutch {
     }
 
     public void engageFront() {
-            frontIntakeClutch.setPosition(FRONT_INTAKE_ENGAGE_POS);
-            backIntakeClutch.setPosition(BACK_INTAKE_RELEASE_POS);
+        frontIntakeClutch.setPosition(FRONT_INTAKE_ENGAGE_POS);
+        backIntakeClutch.setPosition(BACK_INTAKE_RELEASE_POS);
     }
 
     public void engageBack() {
-            frontIntakeClutch.setPosition(FRONT_INTAKE_RELEASE_POS);
-            backIntakeClutch.setPosition(BACK_INTAKE_ENGAGE_POS);
+        frontIntakeClutch.setPosition(FRONT_INTAKE_RELEASE_POS);
+        backIntakeClutch.setPosition(BACK_INTAKE_ENGAGE_POS);
     }
 
     public void release() {
-            frontIntakeClutch.setPosition(FRONT_INTAKE_RELEASE_POS);
-            backIntakeClutch.setPosition(BACK_INTAKE_RELEASE_POS);
+        frontIntakeClutch.setPosition(FRONT_INTAKE_RELEASE_POS);
+        backIntakeClutch.setPosition(BACK_INTAKE_RELEASE_POS);
     }
 }
 

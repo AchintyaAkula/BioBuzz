@@ -4,12 +4,7 @@ public class VelPIDController {
     public double kP, kS, kV;
     public double target;
 
-    public VelPIDController(
-            double kP,
-            double kS,
-            double kV,
-            double target
-    ) {
+    public VelPIDController(double kP, double kS, double kV, double target) {
         this.kP = kP;
         this.kS = kS;
         this.kV = kV;
@@ -26,9 +21,7 @@ public class VelPIDController {
 
     public double calculate(double actual) {
         double err = target - actual;
-        double pow = kP * err
-                + kS * Math.signum(target)
-                + kV * target;
+        double pow = kP * err + kS * Math.signum(target) + kV * target;
 
         return pow;
     }
