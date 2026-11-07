@@ -35,7 +35,7 @@ class IntakeClutch {
 }
 
 class TransferClutch {
-    private static final double TRANSFER_ENGAGE_POS = 0.96;
+    private static final double TRANSFER_ENGAGE_POS = 0.98;
     private static final double TRANSFER_RELEASE_POS = 0.6;
 
     private Servo transferServo;

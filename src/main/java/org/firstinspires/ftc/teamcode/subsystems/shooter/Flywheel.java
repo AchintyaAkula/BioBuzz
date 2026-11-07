@@ -6,11 +6,11 @@ import org.firstinspires.ftc.teamcode.Configuration;
 import org.firstinspires.ftc.teamcode.util.VelPIDController;
 
 public class Flywheel {
-    private DcMotorEx frontFlywheel;
-    private DcMotorEx backFlywheel;
+    public DcMotorEx frontFlywheel;
+    public DcMotorEx backFlywheel;
 
-    private VelPIDController frontPID = new VelPIDController(0.0, 0.06, 0.0004, 0);
-    private VelPIDController backPID = new VelPIDController(0.0, 0.06, 0.0004, 0);
+    private VelPIDController frontPID = new VelPIDController(0.0019, 0.06, 0.00056, 0);
+    private VelPIDController backPID = new VelPIDController(0.0019, 0.06, 0.00056, 0);
 
     private boolean on = false;
     private double target = 0.0;

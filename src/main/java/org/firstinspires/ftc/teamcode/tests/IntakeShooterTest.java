@@ -1,6 +1,8 @@
 package org.firstinspires.ftc.teamcode.tests;
 
+import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
+import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.pedropathing.ivy.Scheduler;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -20,6 +22,7 @@ public class IntakeShooterTest extends OpMode {
 
     @Override
     public void init() {
+        telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
         Scheduler.reset();
         intake.init(hardwareMap);
         flywheel.init(hardwareMap);
@@ -51,6 +54,9 @@ public class IntakeShooterTest extends OpMode {
         } else {
             intake.stop();
         }
+
+        telemetry.addData("vel", flywheel.backFlywheel.getVelocity());
+        telemetry.update();
 
         flywheel.update();
         intake.update();

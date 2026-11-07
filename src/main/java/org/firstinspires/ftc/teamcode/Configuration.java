@@ -16,7 +16,7 @@ public class Configuration {
     public static final MotorConfig BACK_LEFT_MOTOR = new MotorConfig("bl", Direction.FORWARD);
 
     public static final MotorConfig FRONT_FLYWHEEL_MOTOR = new MotorConfig("fwf", Direction.REVERSE);
-    public static final MotorConfig BACK_FLYWHEEL_MOTOR = new MotorConfig("fwb", Direction.REVERSE);
+    public static final MotorConfig BACK_FLYWHEEL_MOTOR = new MotorConfig("fwb", Direction.FORWARD);
 
     public static final ServoConfig TURRET_SERVO = new ServoConfig("turret");
 
